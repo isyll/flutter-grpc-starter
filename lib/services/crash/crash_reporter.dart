@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:bedrock/core/logging/app_logger.dart';
-import 'package:bedrock/services/crash/crashlytics_log_sink.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
+import 'package:flutter_grpc_starter/services/crash/crashlytics_log_sink.dart';
 
 final class CrashReporter {
   CrashReporter({this._logger = const .new('CrashReporter')});

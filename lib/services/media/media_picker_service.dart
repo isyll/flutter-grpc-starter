@@ -1,8 +1,8 @@
-import 'package:bedrock/core/error/app_exception.dart';
-import 'package:bedrock/core/error/result.dart';
-import 'package:bedrock/services/permissions/app_permission.dart';
-import 'package:bedrock/services/permissions/permissions_service.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/core/error/result.dart';
+import 'package:flutter_grpc_starter/services/permissions/app_permission.dart';
+import 'package:flutter_grpc_starter/services/permissions/permissions_service.dart';
 import 'package:image_picker/image_picker.dart';
 
 final class MediaPickerService {

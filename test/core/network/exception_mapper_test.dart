@@ -1,6 +1,6 @@
-import 'package:bedrock/core/error/app_exception.dart';
-import 'package:bedrock/core/network/exception_mapper.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/core/network/exception_mapper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

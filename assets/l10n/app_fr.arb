@@ -1,6 +1,6 @@
 {
   "@@locale": "fr",
-  "appTitle": "Bedrock",
+  "appTitle": "Flutter gRPC Starter",
   "signInTitle": "Bon retour",
   "signInSubtitle": "Connectez-vous à votre compte pour continuer",
   "emailLabel": "E-mail",

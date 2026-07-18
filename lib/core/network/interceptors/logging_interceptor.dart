@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:bedrock/core/logging/app_logger.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
 
 final class LoggingInterceptor extends Interceptor {
   const LoggingInterceptor({this._logger = const .new('Http')});

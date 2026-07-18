@@ -1,6 +1,6 @@
-import 'package:bedrock/core/logging/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
 
 final class AppBlocObserver extends BlocObserver {
   const AppBlocObserver({this._logger = const .new('Bloc')});

@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:bedrock/app/router/app_router.dart';
-import 'package:bedrock/core/extensions/context_extensions.dart';
-import 'package:bedrock/features/app_update/presentation/cubit/app_update_cubit.dart';
-import 'package:bedrock/shared/widgets/adaptive/adaptive_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_grpc_starter/app/router/app_router.dart';
+import 'package:flutter_grpc_starter/core/extensions/context_extensions.dart';
+import 'package:flutter_grpc_starter/features/app_update/presentation/cubit/app_update_cubit.dart';
+import 'package:flutter_grpc_starter/shared/widgets/adaptive/adaptive_dialogs.dart';
 
 class AppUpdateGate extends StatelessWidget {
   const AppUpdateGate({required this.child, super.key});

@@ -1,9 +1,9 @@
-import 'package:bedrock/core/config/app_config.dart';
-import 'package:bedrock/core/error/app_exception.dart';
-import 'package:bedrock/core/session/session_manager.dart';
-import 'package:bedrock/features/auth/domain/auth_repository.dart';
-import 'package:bedrock/features/auth/presentation/cubit/sign_in_cubit.dart';
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/core/session/session_manager.dart';
+import 'package:flutter_grpc_starter/features/auth/domain/auth_repository.dart';
+import 'package:flutter_grpc_starter/features/auth/presentation/cubit/sign_in_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fakes.dart';

@@ -1,5 +1,5 @@
-import 'package:bedrock/app/bootstrap.dart';
-import 'package:bedrock/core/config/firebase/firebase_options_dev.dart';
+import 'package:flutter_grpc_starter/app/bootstrap.dart';
+import 'package:flutter_grpc_starter/core/config/firebase/firebase_options_dev.dart';
 
 Future<void> main() {
   const apiOverride = String.fromEnvironment('API_BASE_URL');
@@ -7,7 +7,7 @@ Future<void> main() {
   return bootstrap(
     .new(
       flavor: .dev,
-      appName: 'Bedrock Dev',
+      appName: 'Flutter gRPC Starter Dev',
       apiBaseUrl: apiOverride.isNotEmpty
           ? apiOverride
           : 'https://api.dev.example.com',

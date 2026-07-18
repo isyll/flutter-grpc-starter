@@ -1,6 +1,6 @@
-import 'package:bedrock/app/theme/app_colors.dart';
-import 'package:bedrock/core/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_grpc_starter/app/theme/app_colors.dart';
+import 'package:flutter_grpc_starter/core/l10n/app_localizations.dart';
 
 extension BuildContextX on BuildContext {
   ColorScheme get colorScheme => theme.colorScheme;

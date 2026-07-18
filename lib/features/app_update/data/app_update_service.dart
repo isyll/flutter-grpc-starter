@@ -1,7 +1,7 @@
-import 'package:bedrock/core/logging/app_logger.dart';
-import 'package:bedrock/core/network/api_client.dart';
-import 'package:bedrock/features/app_update/domain/app_version.dart';
-import 'package:bedrock/services/device/device_info.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
+import 'package:flutter_grpc_starter/core/network/api_client.dart';
+import 'package:flutter_grpc_starter/features/app_update/domain/app_version.dart';
+import 'package:flutter_grpc_starter/services/device/device_info.dart';
 import 'package:in_app_update/in_app_update.dart';
 
 Future<void> runAndroidInAppUpdate() async {

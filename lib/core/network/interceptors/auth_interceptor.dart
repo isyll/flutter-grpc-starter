@@ -1,5 +1,5 @@
-import 'package:bedrock/core/session/session_manager.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/core/session/session_manager.dart';
 
 final class AuthInterceptor extends Interceptor {
   AuthInterceptor({required this._session, required this._retryClient});

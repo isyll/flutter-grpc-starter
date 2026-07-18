@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bedrock/core/logging/app_logger.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 @pragma('vm:entry-point')

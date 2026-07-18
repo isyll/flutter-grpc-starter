@@ -1,5 +1,5 @@
-import 'package:bedrock/core/error/app_exception.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
 
 AppException mapDioException(DioException error) => switch (error.type) {
   .connectionTimeout ||

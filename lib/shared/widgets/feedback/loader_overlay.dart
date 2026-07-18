@@ -1,7 +1,7 @@
-import 'package:bedrock/core/extensions/context_extensions.dart';
-import 'package:bedrock/shared/animations/app_motion.dart';
-import 'package:bedrock/shared/widgets/adaptive/adaptive_progress_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_grpc_starter/core/extensions/context_extensions.dart';
+import 'package:flutter_grpc_starter/shared/animations/app_motion.dart';
+import 'package:flutter_grpc_starter/shared/widgets/adaptive/adaptive_progress_indicator.dart';
 
 abstract final class LoaderOverlay {
   static OverlayEntry? _entry;

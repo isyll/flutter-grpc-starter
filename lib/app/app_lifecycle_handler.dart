@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:bedrock/core/di/injector.dart';
-import 'package:bedrock/features/app_update/presentation/cubit/app_update_cubit.dart';
-import 'package:bedrock/services/review/app_review_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_grpc_starter/core/di/injector.dart';
+import 'package:flutter_grpc_starter/features/app_update/presentation/cubit/app_update_cubit.dart';
+import 'package:flutter_grpc_starter/services/review/app_review_service.dart';
 
 class AppLifecycleHandler extends StatefulWidget {
   const AppLifecycleHandler({required this.child, super.key});

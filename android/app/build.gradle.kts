@@ -30,7 +30,7 @@ gradle.taskGraph.whenReady {
 }
 
 android {
-    namespace = "com.ibrahimasylla.bedrock"
+    namespace = "com.ibrahimasylla.grpcstarter"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -45,7 +45,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ibrahimasylla.bedrock"
+        applicationId = "com.ibrahimasylla.grpcstarter"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -70,12 +70,12 @@ android {
             dimension = "env"
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            resValue("string", "app_name", "Bedrock Dev")
+            resValue("string", "app_name", "Flutter gRPC Starter Dev")
             manifestPlaceholders["deepLinkHost"] = "app.dev.example.com"
         }
         create("prod") {
             dimension = "env"
-            resValue("string", "app_name", "Bedrock")
+            resValue("string", "app_name", "Flutter gRPC Starter")
             manifestPlaceholders["deepLinkHost"] = "app.example.com"
         }
     }

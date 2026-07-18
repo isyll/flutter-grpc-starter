@@ -1,5 +1,5 @@
-import 'package:bedrock/core/error/app_exception.dart';
-import 'package:bedrock/core/error/result.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/core/error/result.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

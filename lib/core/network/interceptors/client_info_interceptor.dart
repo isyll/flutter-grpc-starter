@@ -1,5 +1,5 @@
-import 'package:bedrock/services/device/device_info.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/services/device/device_info.dart';
 
 final class ClientInfoInterceptor extends Interceptor {
   const ClientInfoInterceptor({required this._info});

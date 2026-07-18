@@ -1,6 +1,6 @@
-import 'package:bedrock/core/error/app_exception.dart';
-import 'package:bedrock/core/logging/app_logger.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorage {

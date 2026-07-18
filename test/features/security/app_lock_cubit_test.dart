@@ -1,6 +1,6 @@
-import 'package:bedrock/core/storage/storage_keys.dart';
-import 'package:bedrock/features/security/presentation/cubit/app_lock_cubit.dart';
-import 'package:bedrock/services/biometrics/biometrics_service.dart';
+import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
+import 'package:flutter_grpc_starter/features/security/presentation/cubit/app_lock_cubit.dart';
+import 'package:flutter_grpc_starter/services/biometrics/biometrics_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fakes.dart';

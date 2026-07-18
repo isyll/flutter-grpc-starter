@@ -1,6 +1,6 @@
-import 'package:bedrock/shared/animations/app_motion.dart';
-import 'package:bedrock/shared/animations/fade_slide_in.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_grpc_starter/shared/animations/app_motion.dart';
+import 'package:flutter_grpc_starter/shared/animations/fade_slide_in.dart';
 
 class StaggeredColumn extends StatelessWidget {
   const StaggeredColumn({

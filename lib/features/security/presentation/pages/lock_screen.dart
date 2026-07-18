@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:bedrock/core/extensions/context_extensions.dart';
-import 'package:bedrock/features/auth/presentation/bloc/session_bloc.dart';
-import 'package:bedrock/features/security/presentation/cubit/app_lock_cubit.dart';
-import 'package:bedrock/shared/animations/staggered_column.dart';
-import 'package:bedrock/shared/widgets/buttons/app_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_grpc_starter/core/extensions/context_extensions.dart';
+import 'package:flutter_grpc_starter/features/auth/presentation/bloc/session_bloc.dart';
+import 'package:flutter_grpc_starter/features/security/presentation/cubit/app_lock_cubit.dart';
+import 'package:flutter_grpc_starter/shared/animations/staggered_column.dart';
+import 'package:flutter_grpc_starter/shared/widgets/buttons/app_button.dart';
 
 class LockScreen extends StatefulWidget {
   const LockScreen({super.key});

@@ -1,5 +1,5 @@
-import 'package:bedrock/shared/animations/app_motion.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_grpc_starter/shared/animations/app_motion.dart';
 
 class TapScale extends StatefulWidget {
   const TapScale({

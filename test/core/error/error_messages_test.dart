@@ -1,6 +1,6 @@
-import 'package:bedrock/core/error/app_exception.dart';
-import 'package:bedrock/core/error/error_messages.dart';
-import 'package:bedrock/core/l10n/app_localizations_en.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/core/error/error_messages.dart';
+import 'package:flutter_grpc_starter/core/l10n/app_localizations_en.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

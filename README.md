@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="assets/images/logo.png" alt="Bedrock logo" width="96" />
+<img src="assets/images/logo.png" alt="Flutter gRPC Starter logo" width="96" />
 
-# Bedrock
+# Flutter gRPC Starter
 
 **A production-grade Flutter template for Android and iOS.**
 
@@ -77,8 +77,8 @@ make hooks        # enable the pre-commit hook
 Two flavors, two entry points, zero leakage:
 
 ```text
-dev   com.ibrahimasylla.bedrock.dev   lib/main_dev.dart    Bedrock Dev
-prod  com.ibrahimasylla.bedrock       lib/main_prod.dart   Bedrock
+dev   com.ibrahimasylla.grpcstarter.dev   lib/main_dev.dart    Flutter gRPC Starter Dev
+prod  com.ibrahimasylla.grpcstarter       lib/main_prod.dart   Flutter gRPC Starter
 ```
 
 Each entry point builds its own immutable `AppConfig` and imports only its own Firebase options file. Dart tree shaking guarantees that dev URLs, keys, and Firebase options never appear in the prod binary, and vice versa. On iOS the flavors map to the `dev` and `prod` schemes with `Debug/Release/Profile-<flavor>` configurations; on Android they are Gradle product flavors.

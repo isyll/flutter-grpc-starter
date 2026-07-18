@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:bedrock/core/config/app_config.dart';
-import 'package:bedrock/core/session/auth_tokens.dart';
-import 'package:bedrock/core/session/session_manager.dart';
-import 'package:bedrock/core/storage/storage_keys.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/session/auth_tokens.dart';
+import 'package:flutter_grpc_starter/core/session/session_manager.dart';
+import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fakes.dart';

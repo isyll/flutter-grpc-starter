@@ -2,16 +2,16 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:bedrock/core/storage/key_value_storage.dart';
-import 'package:bedrock/core/storage/secure_storage.dart';
-import 'package:bedrock/features/app_update/data/app_update_service.dart';
-import 'package:bedrock/features/auth/data/auth_api.dart';
-import 'package:bedrock/features/auth/domain/user.dart';
-import 'package:bedrock/services/biometrics/biometrics_service.dart';
-import 'package:bedrock/services/device/device_info.dart';
-import 'package:bedrock/services/device/device_info_service.dart';
-import 'package:bedrock/services/store/store_service.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/core/storage/key_value_storage.dart';
+import 'package:flutter_grpc_starter/core/storage/secure_storage.dart';
+import 'package:flutter_grpc_starter/features/app_update/data/app_update_service.dart';
+import 'package:flutter_grpc_starter/features/auth/data/auth_api.dart';
+import 'package:flutter_grpc_starter/features/auth/domain/user.dart';
+import 'package:flutter_grpc_starter/services/biometrics/biometrics_service.dart';
+import 'package:flutter_grpc_starter/services/device/device_info.dart';
+import 'package:flutter_grpc_starter/services/device/device_info_service.dart';
+import 'package:flutter_grpc_starter/services/store/store_service.dart';
 import 'package:local_auth/local_auth.dart';
 
 const iosDeviceInfo = DeviceInfo(

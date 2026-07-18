@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:bedrock/core/config/app_config.dart';
-import 'package:bedrock/core/logging/app_logger.dart';
-import 'package:bedrock/core/network/interceptors/client_info_interceptor.dart';
-import 'package:bedrock/core/network/interceptors/locale_interceptor.dart';
-import 'package:bedrock/core/network/network_timeouts.dart';
-import 'package:bedrock/core/session/auth_tokens.dart';
-import 'package:bedrock/core/storage/secure_storage.dart';
-import 'package:bedrock/core/storage/storage_keys.dart';
-import 'package:bedrock/services/device/device_info.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
+import 'package:flutter_grpc_starter/core/network/interceptors/client_info_interceptor.dart';
+import 'package:flutter_grpc_starter/core/network/interceptors/locale_interceptor.dart';
+import 'package:flutter_grpc_starter/core/network/network_timeouts.dart';
+import 'package:flutter_grpc_starter/core/session/auth_tokens.dart';
+import 'package:flutter_grpc_starter/core/storage/secure_storage.dart';
+import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
+import 'package:flutter_grpc_starter/services/device/device_info.dart';
 
 final class SessionManager {
   SessionManager({

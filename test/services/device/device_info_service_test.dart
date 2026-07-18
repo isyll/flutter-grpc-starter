@@ -1,5 +1,5 @@
-import 'package:bedrock/core/storage/storage_keys.dart';
-import 'package:bedrock/services/device/device_info_service.dart';
+import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
+import 'package:flutter_grpc_starter/services/device/device_info_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fakes.dart';

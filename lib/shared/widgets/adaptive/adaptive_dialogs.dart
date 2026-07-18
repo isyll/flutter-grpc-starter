@@ -1,6 +1,6 @@
-import 'package:bedrock/core/extensions/context_extensions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_grpc_starter/core/extensions/context_extensions.dart';
 
 Future<bool> showConfirmDialog(
   BuildContext context, {

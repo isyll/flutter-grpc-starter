@@ -1,13 +1,13 @@
-import 'package:bedrock/app/router/app_route_observer.dart';
-import 'package:bedrock/app/router/app_routes.dart';
-import 'package:bedrock/app/router/stream_refresh_listenable.dart';
-import 'package:bedrock/features/about/presentation/pages/about_page.dart';
-import 'package:bedrock/features/auth/presentation/bloc/session_bloc.dart';
-import 'package:bedrock/features/auth/presentation/pages/sign_in_page.dart';
-import 'package:bedrock/features/error/presentation/pages/not_found_page.dart';
-import 'package:bedrock/features/home/presentation/pages/home_page.dart';
-import 'package:bedrock/features/settings/presentation/pages/settings_page.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_grpc_starter/app/router/app_route_observer.dart';
+import 'package:flutter_grpc_starter/app/router/app_routes.dart';
+import 'package:flutter_grpc_starter/app/router/stream_refresh_listenable.dart';
+import 'package:flutter_grpc_starter/features/about/presentation/pages/about_page.dart';
+import 'package:flutter_grpc_starter/features/auth/presentation/bloc/session_bloc.dart';
+import 'package:flutter_grpc_starter/features/auth/presentation/pages/sign_in_page.dart';
+import 'package:flutter_grpc_starter/features/error/presentation/pages/not_found_page.dart';
+import 'package:flutter_grpc_starter/features/home/presentation/pages/home_page.dart';
+import 'package:flutter_grpc_starter/features/settings/presentation/pages/settings_page.dart';
 import 'package:go_router/go_router.dart';
 
 final class AppRouter {

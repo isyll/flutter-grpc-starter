@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:bedrock/core/storage/key_value_storage.dart';
-import 'package:bedrock/core/storage/storage_keys.dart';
-import 'package:bedrock/services/biometrics/biometrics_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_grpc_starter/core/storage/key_value_storage.dart';
+import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
+import 'package:flutter_grpc_starter/services/biometrics/biometrics_service.dart';
 
 part 'app_lock_state.dart';
 
