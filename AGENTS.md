@@ -1,0 +1,72 @@
+# Bedrock
+
+Production-grade Flutter template for Android and iOS, paired with a REST API backend using opaque access tokens (access + refresh token pair, server-side revocation, expiry driven by the `expires_at` value returned at sign in).
+
+## Commands
+
+| Task | Command |
+| --- | --- |
+| Fetch dependencies | `flutter pub get` |
+| Generate localizations | `flutter gen-l10n` |
+| Analyze | `flutter analyze --no-pub` |
+| Format | `dart format lib test` |
+| Test | `flutter test` |
+| Run dev | `flutter run --flavor dev --target lib/main_dev.dart` |
+| Run prod | `flutter run --flavor prod --target lib/main_prod.dart` |
+| Build prod APK | `flutter build apk --release --flavor prod --target lib/main_prod.dart` |
+| Enable git hooks | `git config core.hooksPath .githooks` |
+
+A `Makefile` wraps all of these (`make help`).
+
+## Architecture
+
+- State management: `flutter_bloc` only. App-wide state lives in `SessionBloc` (auth session), `ThemeCubit`, and `LocaleCubit`, provided above `MaterialApp.router`. Screen state uses a `Bloc` or `Cubit` scoped to the page with `BlocProvider`.
+- Navigation: `go_router` in `lib/app/router/`. Auth guarding is done in the central `redirect`, refreshed through the `SessionBloc` stream. Deep links are handled natively by go_router (`FlutterDeepLinkingEnabled` on iOS, `autoVerify` intent filters on Android).
+- Networking: `dio` behind `ApiClientFactory` (`lib/core/network/`). Multiple clients are supported; each authenticated client gets an `AuthInterceptor` that checks token expiry before every request (refreshing proactively when stale) and falls back to a single-flight refresh-and-retry on 401. Token lifecycle is owned by `SessionManager` (`lib/core/session/`), which never touches UI or routing. Auth endpoint paths live in `AuthEndpoints` (`lib/core/config/app_config.dart`).
+- Client info: `DeviceInfoService` (`lib/services/device/`) loads app version, build number, and device details once at startup and owns the install id (UUID v4 persisted in secure storage). `ClientInfoInterceptor` stamps `X-App-Version`, `X-Build-Number`, `X-Platform`, `X-OS-Version`, and `X-Device-Id` on every request, and the device payload is sent in the sign in body so the backend stores it with the session.
+- App updates: platform-native, with no backend involvement. `AppUpdateService` (`lib/features/app_update/data/`) runs Google Play in-app updates on Android through `in_app_update`, and on iOS queries the App Store lookup API for the published version. `AppUpdateCubit` throttles the check (startup and on resume); on iOS it surfaces a newer version so `AppUpdateGate` shows a dismissible dialog once per version (dismissed versions are remembered), while on Android the Play flow handles everything itself. Opening the store listing goes through `StoreService` (needs `appStoreId` on iOS).
+- Store and reviews: `StoreService` (`lib/services/store/`) wraps `in_app_review` (native rating dialog, store listing). `AppReviewService` (`lib/services/review/`) throttles rating prompts by session count, days since first session, and days since last prompt.
+- Lifecycle: `AppLifecycleHandler` (`lib/app/`) owns the app-level `AppLifecycleListener`: update checks on resume, session counting and review prompts when the app returns to the foreground. `AppLockGate` keeps its own listener to lock on hide.
+- Errors: repositories return `Result<T>` (`lib/core/error/result.dart`), never throw across layers. `DioException` is mapped to a sealed `AppException` hierarchy via `mapDioException`. UI messages come from `AppExceptionMessage.localizedMessage`.
+- Logging: `AppLogger` (`lib/core/logging/`) fans `LogRecord`s out to `LogSink`s. `ConsoleLogSink` renders boxed, colored output in debug; `CrashlyticsLogSink` (`lib/services/crash/`) forwards breadcrumbs and non-fatal errors to Crashlytics in release builds when Firebase is configured.
+- Crash reporting: `CrashReporter` (`lib/services/crash/`) wraps Firebase Crashlytics. Fatal Flutter and platform errors are recorded from `bootstrap`, the session user id is attached, and collection is disabled in debug builds or when Firebase is absent.
+- Device services: `PermissionsService` (`lib/services/permissions/`) wraps runtime permissions behind `AppPermission` and `PermissionResult`; `MediaPickerService` (`lib/services/media/`) picks and captures images and files; `LocationService` (`lib/services/location/`) resolves positions through the same permission flow. All return `Result` failures (`PermissionException`, `LocationException`) that localize via `AppExceptionMessage`.
+- App lock: opt-in biometric unlock. `BiometricsService` (`lib/services/biometrics/`) wraps `local_auth`; `AppLockCubit` (`lib/features/security/`) persists the settings toggle, locks when the app is hidden, and `AppLockGate` overlays the lock screen above the navigator in `app.dart`. Android requires `MainActivity` to extend `FlutterFragmentActivity`.
+- Animations: motion tokens and reusable widgets live in `lib/shared/animations/` (`AppMotion`, `FadeSlideIn`, `StaggeredColumn`, `TapScale`, `AppLottie`); Lottie assets live in `assets/animations/`.
+- DI: `get_it` registrations in `lib/core/di/injector.dart`. Constructor injection everywhere; no service locator calls inside business logic.
+- Flavors: `dev` and `prod`. Entry points `lib/main_dev.dart` and `lib/main_prod.dart` each build an immutable `AppConfig` and import only their own Firebase options file, so flavor-specific values are tree-shaken out of the other flavor's binary. Never import a dev config from shared code.
+- Localization: arb sources in `assets/l10n/`, generated output in `lib/core/l10n/` (gitignored, regenerated by `flutter pub get` or `flutter gen-l10n`). Access via `context.l10n`.
+- Theming: `lib/app/theme/`. Material 3 seeded `ColorScheme`, light and dark, refined typography (`AppTypography`), and widget-state-aware component themes (focus, error, hover, pressed, disabled) plus the `AppSemanticColors` theme extension. Platform-adaptive widgets live in `lib/shared/widgets/adaptive/`.
+
+## Layout
+
+```text
+lib/
+  main_dev.dart, main_prod.dart    flavor entry points
+  app/                             bootstrap, root widget, router, theme
+  core/                            config, di, error, l10n (generated), logging,
+                                   network, session, storage, extensions, utils
+  features/<name>/                 data / domain / presentation per feature
+  services/                        crash reporting, device info, location,
+                                   media picking, permissions, push
+                                   notifications, review, store
+  shared/                          animations toolkit and reusable UI widgets
+                                   (adaptive, buttons, feedback, loaders)
+```
+
+## Conventions
+
+- No code comments. Code must be self-explanatory; extract methods and name things well instead.
+- Never use em dashes anywhere (code, docs, commits).
+- Simple commit messages: short imperative subject line, no conventional-commit prefixes.
+- Lint config is `very_good_analysis` (see `analysis_options.yaml`); `flutter analyze` must stay at zero issues.
+- `dart format` with the default 80-column width is the only accepted formatting.
+- New features follow the existing feature layout and register dependencies in `injector.dart`.
+- Strings shown to users always go through l10n; add keys to both `app_en.arb` and `app_fr.arb`.
+- Tests mirror the `lib/` layout under `test/`. Shared hand-written fakes live in `test/helpers/fakes.dart`; no mocking framework. Bloc and cubit tests use `bloc_test`. HTTP is faked at the Dio `HttpClientAdapter` seam. Classes that tests need to fake stay non-final.
+- Secrets never enter the repo: `android/key.properties`, Firebase config files, and real API keys are gitignored. Firebase options placeholders live in `lib/core/config/firebase/` and are replaced per project via FlutterFire CLI.
+- Do not add dependencies without strong justification; prefer hand-written code for simple concerns.
+
+## Template bootstrap
+
+This repo is a template. To start a real project from it, run the `project-setup` skill in `.claude/skills/project-setup/` (Claude Code) or the `/project-setup` prompt in `.github/prompts/` (GitHub Copilot). Both rename the app, package, and bundle identifiers, set API URLs and deep link hosts, and regenerate icons and splash screens. The same duality exists for scaffolding features: `new-feature` skill or `/new-feature` prompt. GitHub-side AI automation uses the Copilot coding agent; its environment is prepared by `.github/workflows/copilot-setup-steps.yml`.

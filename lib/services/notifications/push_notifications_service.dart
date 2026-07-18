@@ -1,0 +1,143 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:bedrock/core/logging/app_logger.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  const AppLogger('Push').debug('Background message: ${message.messageId}');
+}
+
+typedef NotificationRouteHandler = void Function(String route);
+
+typedef TokenHandler = FutureOr<void> Function(String token);
+
+final class PushNotificationsService {
+  PushNotificationsService({
+    this.onOpenRoute,
+    this.onTokenChanged,
+    this._logger = const .new('Push'),
+  });
+
+  static const _routeKey = 'route';
+
+  static const _androidChannel = AndroidNotificationChannel(
+    'default_high_importance',
+    'Important notifications',
+    description: 'Notifications that require immediate attention',
+    importance: .high,
+  );
+
+  final NotificationRouteHandler? onOpenRoute;
+  final TokenHandler? onTokenChanged;
+  final AppLogger _logger;
+
+  final _localNotifications = FlutterLocalNotificationsPlugin();
+  StreamSubscription<RemoteMessage>? _foregroundSubscription;
+  StreamSubscription<RemoteMessage>? _openedSubscription;
+  StreamSubscription<String>? _tokenSubscription;
+
+  int _localNotificationId = 0;
+
+  Future<void> dispose() async {
+    await _foregroundSubscription?.cancel();
+    await _openedSubscription?.cancel();
+    await _tokenSubscription?.cancel();
+  }
+
+  Future<void> initialize() async {
+    final messaging = FirebaseMessaging.instance;
+
+    await messaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    await _initializeLocalNotifications();
+
+    _foregroundSubscription = FirebaseMessaging.onMessage.listen(
+      _onForegroundMessage,
+    );
+    _openedSubscription = FirebaseMessaging.onMessageOpenedApp.listen(
+      _onMessageOpened,
+    );
+
+    final initialMessage = await messaging.getInitialMessage();
+    if (initialMessage != null) _onMessageOpened(initialMessage);
+
+    _tokenSubscription = messaging.onTokenRefresh.listen(_onToken);
+    final token = await messaging.getToken();
+    if (token != null) await _onToken(token);
+  }
+
+  Future<AuthorizationStatus> requestPermission() async {
+    final settings = await FirebaseMessaging.instance.requestPermission();
+    _logger.info(
+      'Notification permission: ${settings.authorizationStatus.name}',
+    );
+    return settings.authorizationStatus;
+  }
+
+  Future<void> _initializeLocalNotifications() async {
+    const initSettings = InitializationSettings(
+      android: .new('@mipmap/ic_launcher'),
+      iOS: .new(),
+    );
+
+    await _localNotifications.initialize(
+      settings: initSettings,
+      onDidReceiveNotificationResponse: (response) {
+        final route = response.payload;
+        if (route != null && route.isNotEmpty) onOpenRoute?.call(route);
+      },
+    );
+
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.createNotificationChannel(_androidChannel);
+  }
+
+  int _nextLocalNotificationId() {
+    final id = _localNotificationId;
+    _localNotificationId = (_localNotificationId + 1) & 0x7fffffff;
+    return id;
+  }
+
+  void _onForegroundMessage(RemoteMessage message) {
+    final notification = message.notification;
+    if (notification == null || !Platform.isAndroid) return;
+
+    unawaited(
+      _localNotifications.show(
+        id: _nextLocalNotificationId(),
+        title: notification.title,
+        body: notification.body,
+        notificationDetails: .new(
+          android: .new(
+            _androidChannel.id,
+            _androidChannel.name,
+            channelDescription: _androidChannel.description,
+            importance: .high,
+            priority: .high,
+          ),
+        ),
+        payload: message.data[_routeKey] as String?,
+      ),
+    );
+  }
+
+  void _onMessageOpened(RemoteMessage message) {
+    final route = message.data[_routeKey] as String?;
+    if (route != null && route.isNotEmpty) onOpenRoute?.call(route);
+  }
+
+  Future<void> _onToken(String token) async {
+    _logger.debug('FCM token refreshed');
+    await onTokenChanged?.call(token);
+  }
+}
