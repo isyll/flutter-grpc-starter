@@ -1,5 +1,5 @@
-import 'package:bedrock/core/logging/app_logger.dart';
-import 'package:bedrock/services/permissions/app_permission.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
+import 'package:flutter_grpc_starter/services/permissions/app_permission.dart';
 import 'package:permission_handler/permission_handler.dart'
     as permission_handler;
 

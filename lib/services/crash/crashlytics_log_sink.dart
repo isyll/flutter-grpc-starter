@@ -1,5 +1,5 @@
-import 'package:bedrock/core/logging/log_record.dart';
-import 'package:bedrock/services/crash/crash_reporter.dart';
+import 'package:flutter_grpc_starter/core/logging/log_record.dart';
+import 'package:flutter_grpc_starter/services/crash/crash_reporter.dart';
 
 final class CrashlyticsLogSink implements LogSink {
   const CrashlyticsLogSink({required this._reporter});

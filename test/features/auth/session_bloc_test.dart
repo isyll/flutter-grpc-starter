@@ -1,7 +1,7 @@
-import 'package:bedrock/core/config/app_config.dart';
-import 'package:bedrock/core/session/session_manager.dart';
-import 'package:bedrock/features/auth/domain/auth_repository.dart';
-import 'package:bedrock/features/auth/presentation/bloc/session_bloc.dart';
+import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/session/session_manager.dart';
+import 'package:flutter_grpc_starter/features/auth/domain/auth_repository.dart';
+import 'package:flutter_grpc_starter/features/auth/presentation/bloc/session_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fakes.dart';

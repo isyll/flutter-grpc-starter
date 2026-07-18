@@ -1,8 +1,8 @@
-import 'package:bedrock/core/error/app_exception.dart';
-import 'package:bedrock/core/error/result.dart';
-import 'package:bedrock/core/logging/app_logger.dart';
-import 'package:bedrock/services/location/app_location.dart';
-import 'package:bedrock/services/permissions/permissions_service.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/core/error/result.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
+import 'package:flutter_grpc_starter/services/location/app_location.dart';
+import 'package:flutter_grpc_starter/services/permissions/permissions_service.dart';
 import 'package:geolocator/geolocator.dart';
 
 final class LocationService {

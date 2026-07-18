@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:bedrock/core/logging/app_logger.dart';
-import 'package:bedrock/core/storage/secure_storage.dart';
-import 'package:bedrock/core/storage/storage_keys.dart';
-import 'package:bedrock/services/device/device_info.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
+import 'package:flutter_grpc_starter/core/storage/secure_storage.dart';
+import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
+import 'package:flutter_grpc_starter/services/device/device_info.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:uuid/uuid.dart';
 

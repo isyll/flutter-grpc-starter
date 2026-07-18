@@ -1,6 +1,6 @@
-import 'package:bedrock/shared/widgets/adaptive/adaptive_progress_indicator.dart';
-import 'package:bedrock/shared/widgets/buttons/app_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_grpc_starter/shared/widgets/adaptive/adaptive_progress_indicator.dart';
+import 'package:flutter_grpc_starter/shared/widgets/buttons/app_button.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

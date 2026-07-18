@@ -1,4 +1,4 @@
-import 'package:bedrock/features/app_update/domain/app_version.dart';
+import 'package:flutter_grpc_starter/features/app_update/domain/app_version.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

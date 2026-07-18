@@ -1,9 +1,9 @@
-import 'package:bedrock/core/config/app_config.dart';
-import 'package:bedrock/core/network/api_client.dart';
-import 'package:bedrock/core/network/interceptors/auth_interceptor.dart';
-import 'package:bedrock/core/session/auth_tokens.dart';
-import 'package:bedrock/features/auth/domain/user.dart';
-import 'package:bedrock/services/device/device_info.dart';
+import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/network/api_client.dart';
+import 'package:flutter_grpc_starter/core/network/interceptors/auth_interceptor.dart';
+import 'package:flutter_grpc_starter/core/session/auth_tokens.dart';
+import 'package:flutter_grpc_starter/features/auth/domain/user.dart';
+import 'package:flutter_grpc_starter/services/device/device_info.dart';
 
 abstract interface class AuthApi {
   Future<User> fetchProfile();

@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:bedrock/features/auth/domain/auth_repository.dart';
-import 'package:bedrock/features/auth/domain/user.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_grpc_starter/features/auth/domain/auth_repository.dart';
+import 'package:flutter_grpc_starter/features/auth/domain/user.dart';
 
 part 'session_event.dart';
 part 'session_state.dart';

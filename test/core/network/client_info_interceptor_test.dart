@@ -1,7 +1,7 @@
-import 'package:bedrock/core/config/app_config.dart';
-import 'package:bedrock/core/network/api_client.dart';
-import 'package:bedrock/core/session/session_manager.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/network/api_client.dart';
+import 'package:flutter_grpc_starter/core/session/session_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fakes.dart';

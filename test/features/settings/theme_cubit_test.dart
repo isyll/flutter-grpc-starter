@@ -1,6 +1,6 @@
-import 'package:bedrock/core/storage/storage_keys.dart';
-import 'package:bedrock/features/settings/presentation/cubit/theme_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
+import 'package:flutter_grpc_starter/features/settings/presentation/cubit/theme_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fakes.dart';

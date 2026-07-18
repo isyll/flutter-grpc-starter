@@ -1,6 +1,6 @@
-import 'package:bedrock/features/app_update/data/app_update_service.dart';
-import 'package:bedrock/services/device/device_info.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/features/app_update/data/app_update_service.dart';
+import 'package:flutter_grpc_starter/services/device/device_info.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fakes.dart';

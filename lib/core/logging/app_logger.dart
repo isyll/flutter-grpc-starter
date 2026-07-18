@@ -1,7 +1,7 @@
-import 'package:bedrock/core/logging/console_log_sink.dart';
-import 'package:bedrock/core/logging/log_record.dart';
+import 'package:flutter_grpc_starter/core/logging/console_log_sink.dart';
+import 'package:flutter_grpc_starter/core/logging/log_record.dart';
 
-export 'package:bedrock/core/logging/log_record.dart';
+export 'package:flutter_grpc_starter/core/logging/log_record.dart';
 
 final class AppLogger {
   const AppLogger(this.name);

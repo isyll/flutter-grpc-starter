@@ -1,5 +1,5 @@
-name: bedrock
-description: Production-grade Flutter application template for Android and iOS.
+name: flutter_grpc_starter
+description: Production-grade Flutter template for Android and iOS, wired to a gRPC backend.
 publish_to: none
 version: 1.0.0+1
 

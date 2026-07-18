@@ -1,7 +1,7 @@
-import 'package:bedrock/features/security/presentation/cubit/app_lock_cubit.dart';
-import 'package:bedrock/features/security/presentation/pages/lock_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_grpc_starter/features/security/presentation/cubit/app_lock_cubit.dart';
+import 'package:flutter_grpc_starter/features/security/presentation/pages/lock_screen.dart';
 
 class AppLockGate extends StatefulWidget {
   const AppLockGate({required this.child, super.key});

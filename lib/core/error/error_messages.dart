@@ -1,5 +1,5 @@
-import 'package:bedrock/core/error/app_exception.dart';
-import 'package:bedrock/core/l10n/app_localizations.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/core/l10n/app_localizations.dart';
 
 extension AppExceptionMessage on AppException {
   String localizedMessage(AppLocalizations l10n) => switch (this) {

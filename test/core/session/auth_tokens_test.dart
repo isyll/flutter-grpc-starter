@@ -1,4 +1,4 @@
-import 'package:bedrock/core/session/auth_tokens.dart';
+import 'package:flutter_grpc_starter/core/session/auth_tokens.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

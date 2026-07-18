@@ -1,8 +1,8 @@
-import 'package:bedrock/app/router/app_routes.dart';
-import 'package:bedrock/core/extensions/context_extensions.dart';
-import 'package:bedrock/shared/widgets/buttons/app_button.dart';
-import 'package:bedrock/shared/widgets/feedback/empty_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_grpc_starter/app/router/app_routes.dart';
+import 'package:flutter_grpc_starter/core/extensions/context_extensions.dart';
+import 'package:flutter_grpc_starter/shared/widgets/buttons/app_button.dart';
+import 'package:flutter_grpc_starter/shared/widgets/feedback/empty_state.dart';
 import 'package:go_router/go_router.dart';
 
 class NotFoundPage extends StatelessWidget {

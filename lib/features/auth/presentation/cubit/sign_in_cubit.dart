@@ -1,7 +1,7 @@
-import 'package:bedrock/core/error/app_exception.dart';
-import 'package:bedrock/features/auth/domain/auth_repository.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/features/auth/domain/auth_repository.dart';
 
 part 'sign_in_state.dart';
 

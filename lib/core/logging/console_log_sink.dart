@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:bedrock/core/logging/log_record.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_grpc_starter/core/logging/log_record.dart';
 
 final class ConsoleLogSink implements LogSink {
   const ConsoleLogSink({

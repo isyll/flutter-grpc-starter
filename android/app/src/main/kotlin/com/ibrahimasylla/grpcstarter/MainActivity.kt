@@ -1,4 +1,4 @@
-package com.ibrahimasylla.bedrock
+package com.ibrahimasylla.grpcstarter
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 

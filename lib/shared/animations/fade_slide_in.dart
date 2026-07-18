@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:bedrock/shared/animations/app_motion.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_grpc_starter/shared/animations/app_motion.dart';
 
 class FadeSlideIn extends StatefulWidget {
   const FadeSlideIn({

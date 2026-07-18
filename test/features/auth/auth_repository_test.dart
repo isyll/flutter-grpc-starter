@@ -1,9 +1,9 @@
-import 'package:bedrock/core/config/app_config.dart';
-import 'package:bedrock/core/error/app_exception.dart';
-import 'package:bedrock/core/session/session_manager.dart';
-import 'package:bedrock/core/storage/storage_keys.dart';
-import 'package:bedrock/features/auth/data/auth_api.dart';
-import 'package:bedrock/features/auth/domain/auth_repository.dart';
+import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/core/session/session_manager.dart';
+import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
+import 'package:flutter_grpc_starter/features/auth/data/auth_api.dart';
+import 'package:flutter_grpc_starter/features/auth/domain/auth_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fakes.dart';

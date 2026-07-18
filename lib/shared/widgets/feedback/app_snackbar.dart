@@ -1,5 +1,5 @@
-import 'package:bedrock/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_grpc_starter/core/extensions/context_extensions.dart';
 
 void showAppSnackBar(
   BuildContext context,

@@ -16,7 +16,7 @@ abstract final class ProdFirebaseOptions {
     appId: 'REPLACE_WITH_FLUTTERFIRE',
     messagingSenderId: 'REPLACE_WITH_FLUTTERFIRE',
     projectId: 'REPLACE_WITH_FLUTTERFIRE',
-    iosBundleId: 'com.ibrahimasylla.bedrock',
+    iosBundleId: 'com.ibrahimasylla.grpcstarter',
   );
 
   static FirebaseOptions? get currentPlatformOrNull =>

@@ -1,5 +1,5 @@
-import 'package:bedrock/core/config/app_config.dart';
-import 'package:bedrock/core/logging/app_logger.dart';
+import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
 import 'package:in_app_review/in_app_review.dart';
 
 class StoreService {

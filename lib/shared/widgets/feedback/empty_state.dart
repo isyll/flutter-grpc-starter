@@ -1,8 +1,8 @@
-import 'package:bedrock/core/extensions/context_extensions.dart';
-import 'package:bedrock/shared/animations/app_lottie.dart';
-import 'package:bedrock/shared/animations/app_motion.dart';
-import 'package:bedrock/shared/animations/staggered_column.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_grpc_starter/core/extensions/context_extensions.dart';
+import 'package:flutter_grpc_starter/shared/animations/app_lottie.dart';
+import 'package:flutter_grpc_starter/shared/animations/app_motion.dart';
+import 'package:flutter_grpc_starter/shared/animations/staggered_column.dart';
 
 class EmptyState extends StatelessWidget {
   const EmptyState({

@@ -1,9 +1,9 @@
-import 'package:bedrock/app/router/app_routes.dart';
-import 'package:bedrock/core/extensions/context_extensions.dart';
-import 'package:bedrock/features/auth/presentation/bloc/session_bloc.dart';
-import 'package:bedrock/shared/animations/staggered_column.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_grpc_starter/app/router/app_routes.dart';
+import 'package:flutter_grpc_starter/core/extensions/context_extensions.dart';
+import 'package:flutter_grpc_starter/features/auth/presentation/bloc/session_bloc.dart';
+import 'package:flutter_grpc_starter/shared/animations/staggered_column.dart';
 import 'package:go_router/go_router.dart';
 
 class HomePage extends StatelessWidget {

@@ -1,7 +1,7 @@
-import 'package:bedrock/app/theme/app_colors.dart';
-import 'package:bedrock/app/theme/app_typography.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_grpc_starter/app/theme/app_colors.dart';
+import 'package:flutter_grpc_starter/app/theme/app_typography.dart';
 
 abstract final class AppTheme {
   static final ThemeData dark = _build(.dark);

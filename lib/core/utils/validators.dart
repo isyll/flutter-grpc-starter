@@ -1,4 +1,4 @@
-import 'package:bedrock/core/l10n/app_localizations.dart';
+import 'package:flutter_grpc_starter/core/l10n/app_localizations.dart';
 
 abstract final class Validators {
   static const passwordMinLength = 8;

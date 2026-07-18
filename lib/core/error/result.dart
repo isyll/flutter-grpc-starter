@@ -1,4 +1,4 @@
-import 'package:bedrock/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
 
 final class Failure<T> extends Result<T> {
   const Failure(this.exception);

@@ -1,8 +1,8 @@
-import 'package:bedrock/core/config/app_config.dart';
-import 'package:bedrock/core/network/interceptors/auth_interceptor.dart';
-import 'package:bedrock/core/session/auth_tokens.dart';
-import 'package:bedrock/core/session/session_manager.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/network/interceptors/auth_interceptor.dart';
+import 'package:flutter_grpc_starter/core/session/auth_tokens.dart';
+import 'package:flutter_grpc_starter/core/session/session_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/fakes.dart';

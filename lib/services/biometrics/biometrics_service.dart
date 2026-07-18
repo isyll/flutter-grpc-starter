@@ -1,4 +1,4 @@
-import 'package:bedrock/core/logging/app_logger.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
 import 'package:local_auth/local_auth.dart';
 
 enum BiometricAuthResult {

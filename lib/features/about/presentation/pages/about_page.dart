@@ -1,13 +1,13 @@
 import 'dart:async';
 
-import 'package:bedrock/core/config/app_config.dart';
-import 'package:bedrock/core/di/injector.dart';
-import 'package:bedrock/core/extensions/context_extensions.dart';
-import 'package:bedrock/services/device/device_info_service.dart';
-import 'package:bedrock/services/store/store_service.dart';
-import 'package:bedrock/shared/animations/app_motion.dart';
-import 'package:bedrock/shared/animations/fade_slide_in.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/di/injector.dart';
+import 'package:flutter_grpc_starter/core/extensions/context_extensions.dart';
+import 'package:flutter_grpc_starter/services/device/device_info_service.dart';
+import 'package:flutter_grpc_starter/services/store/store_service.dart';
+import 'package:flutter_grpc_starter/shared/animations/app_motion.dart';
+import 'package:flutter_grpc_starter/shared/animations/fade_slide_in.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});

@@ -1,20 +1,20 @@
 import 'dart:async';
 
-import 'package:bedrock/app/app.dart';
-import 'package:bedrock/app/app_bloc_observer.dart';
-import 'package:bedrock/core/config/app_config.dart';
-import 'package:bedrock/core/di/injector.dart';
-import 'package:bedrock/core/logging/app_logger.dart';
-import 'package:bedrock/features/auth/domain/auth_repository.dart';
-import 'package:bedrock/services/crash/crash_reporter.dart';
-import 'package:bedrock/services/notifications/push_notifications_service.dart';
-import 'package:bedrock/shared/widgets/error/app_error_widget.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_grpc_starter/app/app.dart';
+import 'package:flutter_grpc_starter/app/app_bloc_observer.dart';
+import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/di/injector.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
+import 'package:flutter_grpc_starter/features/auth/domain/auth_repository.dart';
+import 'package:flutter_grpc_starter/services/crash/crash_reporter.dart';
+import 'package:flutter_grpc_starter/services/notifications/push_notifications_service.dart';
+import 'package:flutter_grpc_starter/shared/widgets/error/app_error_widget.dart';
 
 const _logger = AppLogger('Bootstrap');
 

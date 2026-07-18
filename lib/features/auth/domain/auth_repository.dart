@@ -1,16 +1,16 @@
 import 'dart:convert';
 
-import 'package:bedrock/core/error/app_exception.dart';
-import 'package:bedrock/core/error/result.dart';
-import 'package:bedrock/core/logging/app_logger.dart';
-import 'package:bedrock/core/network/exception_mapper.dart';
-import 'package:bedrock/core/session/session_manager.dart';
-import 'package:bedrock/core/storage/key_value_storage.dart';
-import 'package:bedrock/core/storage/storage_keys.dart';
-import 'package:bedrock/features/auth/data/auth_api.dart';
-import 'package:bedrock/features/auth/domain/user.dart';
-import 'package:bedrock/services/device/device_info_service.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/core/error/result.dart';
+import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
+import 'package:flutter_grpc_starter/core/network/exception_mapper.dart';
+import 'package:flutter_grpc_starter/core/session/session_manager.dart';
+import 'package:flutter_grpc_starter/core/storage/key_value_storage.dart';
+import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
+import 'package:flutter_grpc_starter/features/auth/data/auth_api.dart';
+import 'package:flutter_grpc_starter/features/auth/domain/user.dart';
+import 'package:flutter_grpc_starter/services/device/device_info_service.dart';
 
 final class AuthRepository {
   AuthRepository({

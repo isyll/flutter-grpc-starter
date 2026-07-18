@@ -1,11 +1,11 @@
-import 'package:bedrock/core/config/app_config.dart';
-import 'package:bedrock/core/l10n/app_localizations.dart';
-import 'package:bedrock/core/session/session_manager.dart';
-import 'package:bedrock/features/auth/domain/auth_repository.dart';
-import 'package:bedrock/features/auth/presentation/cubit/sign_in_cubit.dart';
-import 'package:bedrock/features/auth/presentation/widgets/sign_in_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/l10n/app_localizations.dart';
+import 'package:flutter_grpc_starter/core/session/session_manager.dart';
+import 'package:flutter_grpc_starter/features/auth/domain/auth_repository.dart';
+import 'package:flutter_grpc_starter/features/auth/presentation/cubit/sign_in_cubit.dart';
+import 'package:flutter_grpc_starter/features/auth/presentation/widgets/sign_in_form.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fakes.dart';

@@ -1,18 +1,18 @@
 import 'dart:async';
 
-import 'package:bedrock/app/router/app_routes.dart';
-import 'package:bedrock/core/extensions/context_extensions.dart';
-import 'package:bedrock/core/l10n/app_localizations.dart';
-import 'package:bedrock/features/auth/presentation/bloc/session_bloc.dart';
-import 'package:bedrock/features/security/presentation/cubit/app_lock_cubit.dart';
-import 'package:bedrock/features/settings/presentation/cubit/locale_cubit.dart';
-import 'package:bedrock/features/settings/presentation/cubit/theme_cubit.dart';
-import 'package:bedrock/shared/animations/app_motion.dart';
-import 'package:bedrock/shared/animations/fade_slide_in.dart';
-import 'package:bedrock/shared/widgets/adaptive/adaptive_dialogs.dart';
-import 'package:bedrock/shared/widgets/feedback/app_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_grpc_starter/app/router/app_routes.dart';
+import 'package:flutter_grpc_starter/core/extensions/context_extensions.dart';
+import 'package:flutter_grpc_starter/core/l10n/app_localizations.dart';
+import 'package:flutter_grpc_starter/features/auth/presentation/bloc/session_bloc.dart';
+import 'package:flutter_grpc_starter/features/security/presentation/cubit/app_lock_cubit.dart';
+import 'package:flutter_grpc_starter/features/settings/presentation/cubit/locale_cubit.dart';
+import 'package:flutter_grpc_starter/features/settings/presentation/cubit/theme_cubit.dart';
+import 'package:flutter_grpc_starter/shared/animations/app_motion.dart';
+import 'package:flutter_grpc_starter/shared/animations/fade_slide_in.dart';
+import 'package:flutter_grpc_starter/shared/widgets/adaptive/adaptive_dialogs.dart';
+import 'package:flutter_grpc_starter/shared/widgets/feedback/app_snackbar.dart';
 import 'package:go_router/go_router.dart';
 
 class SettingsPage extends StatelessWidget {

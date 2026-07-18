@@ -1,5 +1,5 @@
-import 'package:bedrock/core/l10n/app_localizations_en.dart';
-import 'package:bedrock/core/utils/validators.dart';
+import 'package:flutter_grpc_starter/core/l10n/app_localizations_en.dart';
+import 'package:flutter_grpc_starter/core/utils/validators.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
