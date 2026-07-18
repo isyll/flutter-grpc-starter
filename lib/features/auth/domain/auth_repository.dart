@@ -1,10 +1,8 @@
 import 'dart:convert';
 
-import 'package:dio/dio.dart';
 import 'package:flutter_grpc_starter/core/error/app_exception.dart';
 import 'package:flutter_grpc_starter/core/error/result.dart';
 import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
-import 'package:flutter_grpc_starter/core/network/exception_mapper.dart';
 import 'package:flutter_grpc_starter/core/session/session_manager.dart';
 import 'package:flutter_grpc_starter/core/storage/key_value_storage.dart';
 import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
@@ -41,8 +39,8 @@ final class AuthRepository {
       _currentUser = user;
       await _cacheUser(user);
       return .success(user);
-    } on DioException catch (error) {
-      return .failure(mapDioException(error));
+    } on AppException catch (error) {
+      return .failure(error);
     }
   }
 
@@ -67,8 +65,8 @@ final class AuthRepository {
       await _cacheUser(result.user);
       await _session.start(result.tokens);
       return .success(result.user);
-    } on DioException catch (error) {
-      return .failure(mapDioException(error));
+    } on AppException catch (error) {
+      return .failure(error);
     } on Object catch (error, stackTrace) {
       return .failure(
         UnexpectedException(
@@ -109,7 +107,7 @@ final class AuthRepository {
   Future<void> _revokeServerSession() async {
     try {
       await _api.signOut();
-    } on DioException catch (error) {
+    } on AppException catch (error) {
       _logger.warning('Server-side sign out failed, ending locally', error);
     }
   }

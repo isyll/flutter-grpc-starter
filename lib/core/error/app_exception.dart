@@ -1,3 +1,5 @@
+import 'package:grpc/grpc.dart';
+
 class ApiException extends AppException {
   const ApiException(
     super.message, {
@@ -10,7 +12,11 @@ class ApiException extends AppException {
   final String? code;
   final Object? details;
 
-  bool get isServerError => statusCode >= 500;
+  bool get isServerError =>
+      statusCode == StatusCode.internal ||
+      statusCode == StatusCode.unknown ||
+      statusCode == StatusCode.unavailable ||
+      statusCode == StatusCode.dataLoss;
 }
 
 sealed class AppException implements Exception {
@@ -48,7 +54,7 @@ final class StorageException extends AppException {
 
 final class UnauthorizedException extends ApiException {
   const UnauthorizedException(super.message, {super.code})
-    : super(statusCode: 401);
+    : super(statusCode: StatusCode.unauthenticated);
 }
 
 final class UnexpectedException extends AppException {
@@ -62,7 +68,7 @@ final class ValidationException extends ApiException {
   const ValidationException(
     super.message, {
     required this.fieldErrors,
-    super.statusCode = 422,
+    super.statusCode = StatusCode.invalidArgument,
     super.code,
   });
 

@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
-import 'package:flutter_grpc_starter/core/network/api_client.dart';
 import 'package:flutter_grpc_starter/features/app_update/domain/app_version.dart';
 import 'package:flutter_grpc_starter/services/device/device_info.dart';
+import 'package:http/http.dart' as http;
 import 'package:in_app_update/in_app_update.dart';
 
 Future<void> runAndroidInAppUpdate() async {
@@ -23,14 +25,15 @@ typedef PlatformUpdateRunner = Future<void> Function();
 class AppUpdateService {
   AppUpdateService({
     required this._deviceInfo,
-    required this._storeClient,
+    http.Client? httpClient,
     PlatformUpdateRunner? androidUpdateRunner,
     this._logger = const .new('AppUpdateService'),
-  }) : _androidUpdateRunner = androidUpdateRunner ?? runAndroidInAppUpdate;
+  }) : _httpClient = httpClient ?? http.Client(),
+       _androidUpdateRunner = androidUpdateRunner ?? runAndroidInAppUpdate;
 
   static const appStoreLookupBaseUrl = 'https://itunes.apple.com';
   final DeviceInfo _deviceInfo;
-  final ApiClient _storeClient;
+  final http.Client _httpClient;
   final PlatformUpdateRunner _androidUpdateRunner;
 
   final AppLogger _logger;
@@ -42,24 +45,28 @@ class AppUpdateService {
   };
 
   Future<String?> _newerAppStoreVersion() async {
-    final result = await _storeClient.run((dio) async {
-      final response = await dio.get<Map<String, dynamic>>(
-        '/lookup',
+    try {
+      final uri = Uri.parse('$appStoreLookupBaseUrl/lookup').replace(
         queryParameters: {'bundleId': _deviceInfo.bundleId},
       );
-      return _readStoreVersion(response.data);
-    });
-
-    return result.fold(
-      onSuccess: (version) =>
-          version != null && isVersionNewer(version, _deviceInfo.appVersion)
-          ? version
-          : null,
-      onFailure: (exception) {
-        _logger.warning('App Store version check failed', exception);
+      final response = await _httpClient.get(uri);
+      if (response.statusCode != 200) {
+        _logger.warning(
+          'App Store version check failed (${response.statusCode})',
+        );
         return null;
-      },
-    );
+      }
+
+      final version = _readStoreVersion(
+        jsonDecode(response.body) as Map<String, dynamic>,
+      );
+      return version != null && isVersionNewer(version, _deviceInfo.appVersion)
+          ? version
+          : null;
+    } on Object catch (error) {
+      _logger.warning('App Store version check failed', error);
+      return null;
+    }
   }
 
   Future<String?> _runAndroidUpdate() async {

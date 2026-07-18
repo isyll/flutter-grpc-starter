@@ -1,6 +1,6 @@
 import 'package:flutter_grpc_starter/app/router/app_router.dart';
 import 'package:flutter_grpc_starter/core/config/app_config.dart';
-import 'package:flutter_grpc_starter/core/network/api_client.dart';
+import 'package:flutter_grpc_starter/core/network/grpc_client.dart';
 import 'package:flutter_grpc_starter/core/session/session_manager.dart';
 import 'package:flutter_grpc_starter/core/storage/key_value_storage.dart';
 import 'package:flutter_grpc_starter/core/storage/secure_storage.dart';
@@ -51,23 +51,20 @@ Future<void> configureDependencies(
     )
     ..registerLazySingleton<SessionManager>(
       () => .new(
-        config: sl(),
         storage: sl(),
-        localeResolver: () => sl<LocaleCubit>().languageCode,
-        deviceInfo: sl<DeviceInfoService>().info,
+        refresher: (refreshToken) => sl<AuthApi>().refreshTokens(refreshToken),
       ),
       dispose: (manager) => manager.dispose(),
     )
-    ..registerLazySingleton<ApiClientFactory>(
+    ..registerLazySingleton<GrpcClient>(
       () => .new(
-        config: sl(),
+        channel: GrpcChannelFactory(config.grpc).create(
+          userAgent: '${config.appName}/${deviceInfoService.info.fullVersion}',
+        ),
         session: sl(),
-        deviceInfo: sl<DeviceInfoService>().info,
+        deviceInfo: deviceInfoService.info,
         localeResolver: () => sl<LocaleCubit>().languageCode,
       ),
-    )
-    ..registerLazySingleton<ApiClient>(
-      () => sl<ApiClientFactory>().backend(),
       dispose: (client) => client.close(),
     )
     ..registerLazySingleton<StoreService>(() => .new(config: sl()))
@@ -75,26 +72,15 @@ Future<void> configureDependencies(
       () => .new(storage: sl(), store: sl()),
     )
     ..registerLazySingleton<AppUpdateService>(
-      () => .new(
-        deviceInfo: sl<DeviceInfoService>().info,
-        storeClient: sl<ApiClientFactory>().create(
-          baseUrl: AppUpdateService.appStoreLookupBaseUrl,
-          authenticated: false,
-        ),
-      ),
+      () => .new(deviceInfo: deviceInfoService.info),
     )
     ..registerLazySingleton<AppUpdateCubit>(
-      () => .new(
-        service: sl(),
-        storage: sl(),
-        store: sl(),
-      ),
+      () => .new(service: sl(), storage: sl(), store: sl()),
       dispose: (cubit) => cubit.close(),
     )
     ..registerLazySingleton<AuthApi>(
-      () => config.useFakeAuth
-          ? const FakeAuthApi()
-          : HttpAuthApi(client: sl(), config: sl()),
+      () =>
+          config.useFakeAuth ? const FakeAuthApi() : GrpcAuthApi(client: sl()),
     )
     ..registerLazySingleton<AuthRepository>(
       () => .new(
@@ -119,10 +105,6 @@ Future<void> configureDependencies(
       dispose: (service) => service.dispose(),
     )
     ..registerLazySingleton<PermissionsService>(PermissionsService.new)
-    ..registerLazySingleton<MediaPickerService>(
-      () => .new(permissions: sl()),
-    )
-    ..registerLazySingleton<LocationService>(
-      () => .new(permissions: sl()),
-    );
+    ..registerLazySingleton<MediaPickerService>(() => .new(permissions: sl()))
+    ..registerLazySingleton<LocationService>(() => .new(permissions: sl()));
 }

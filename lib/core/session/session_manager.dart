@@ -1,45 +1,22 @@
 import 'dart:async';
 
-import 'package:dio/dio.dart';
-import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
 import 'package:flutter_grpc_starter/core/logging/app_logger.dart';
-import 'package:flutter_grpc_starter/core/network/interceptors/client_info_interceptor.dart';
-import 'package:flutter_grpc_starter/core/network/interceptors/locale_interceptor.dart';
-import 'package:flutter_grpc_starter/core/network/network_timeouts.dart';
 import 'package:flutter_grpc_starter/core/session/auth_tokens.dart';
 import 'package:flutter_grpc_starter/core/storage/secure_storage.dart';
 import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
-import 'package:flutter_grpc_starter/services/device/device_info.dart';
+
+typedef TokenRefresher = Future<AuthTokens> Function(String refreshToken);
 
 final class SessionManager {
   SessionManager({
-    required AppConfig config,
     required this._storage,
-    Dio? tokenClient,
-    LocaleResolver? localeResolver,
-    DeviceInfo? deviceInfo,
+    required this._refresher,
     this._logger = const .new('SessionManager'),
-  }) : _config = config,
-       _tokenClient =
-           tokenClient ??
-           .new(
-             .new(
-               baseUrl: config.apiBaseUrl,
-               connectTimeout: NetworkTimeouts.connect,
-               sendTimeout: NetworkTimeouts.send,
-               receiveTimeout: NetworkTimeouts.receive,
-               headers: const {'Accept': 'application/json'},
-             ),
-           ) {
-    _tokenClient.interceptors.addAll([
-      if (deviceInfo != null) ClientInfoInterceptor(info: deviceInfo),
-      LocaleInterceptor(resolver: localeResolver),
-    ]);
-  }
+  });
 
-  final AppConfig _config;
   final SecureStorage _storage;
-  final Dio _tokenClient;
+  final TokenRefresher _refresher;
   final AppLogger _logger;
 
   final _statusController = StreamController<SessionStatus>.broadcast();
@@ -127,32 +104,23 @@ final class SessionManager {
     }
 
     try {
-      final response = await _tokenClient.post<Map<String, dynamic>>(
-        _config.authEndpoints.refresh,
-        data: {'refresh_token': refreshToken},
-      );
-
-      final body = response.data;
-      if (body == null) throw StateError('Empty refresh response');
-
-      final tokens = AuthTokens.fromJson(
-        body,
-        fallbackRefreshToken: refreshToken,
-      );
+      final tokens = await _refresher(refreshToken);
       _tokens = tokens;
       await _persist(tokens);
       _logger.info('Access token refreshed');
       return tokens.accessToken;
-    } on DioException catch (error) {
-      final statusCode = error.response?.statusCode;
-      if (statusCode == 400 || statusCode == 401) {
-        _logger.warning('Refresh token rejected, ending session');
-        await end();
-      } else {
-        _logger.warning('Token refresh failed transiently', error);
-      }
+    } on UnauthorizedException catch (error) {
+      _logger.warning('Refresh token rejected, ending session', error);
+      await end();
       return null;
-    } on Exception catch (error) {
+    } on ValidationException catch (error) {
+      _logger.warning('Refresh token invalid, ending session', error);
+      await end();
+      return null;
+    } on AppException catch (error) {
+      _logger.warning('Token refresh failed transiently', error);
+      return null;
+    } on Object catch (error) {
       _logger.error('Unexpected error refreshing token', error);
       return null;
     }

@@ -1,11 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_grpc_starter/core/config/grpc_config.dart';
 
 final class AppConfig {
   const AppConfig({
     required this.flavor,
     required this.appName,
-    required this.apiBaseUrl,
-    this.authEndpoints = const .new(),
+    required this.grpc,
     this.appStoreId = '',
     this.firebaseOptions,
     this.useFakeAuth = false,
@@ -13,8 +13,7 @@ final class AppConfig {
 
   final AppFlavor flavor;
   final String appName;
-  final String apiBaseUrl;
-  final AuthEndpoints authEndpoints;
+  final GrpcConfig grpc;
   final String appStoreId;
   final FirebaseOptions? firebaseOptions;
   final bool useFakeAuth;
@@ -25,17 +24,3 @@ final class AppConfig {
 }
 
 enum AppFlavor { dev, prod }
-
-final class AuthEndpoints {
-  const AuthEndpoints({
-    this.signIn = '/v1/auth/login',
-    this.refresh = '/v1/auth/refresh',
-    this.signOut = '/v1/auth/logout',
-    this.profile = '/v1/me',
-  });
-
-  final String signIn;
-  final String refresh;
-  final String signOut;
-  final String profile;
-}
