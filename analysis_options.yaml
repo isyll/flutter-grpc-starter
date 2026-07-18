@@ -3,6 +3,7 @@ include: package:very_good_analysis/analysis_options.yaml
 analyzer:
   exclude:
     - lib/core/l10n/**
+    - lib/core/network/generated/**
     - build/**
   language:
     strict-casts: true
