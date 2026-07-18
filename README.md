@@ -24,9 +24,9 @@ Start every mobile project on solid ground: flavors, opaque-token sessions, bloc
 | --- | --- |
 | State management | `flutter_bloc`: `SessionBloc`, `ThemeCubit`, `LocaleCubit` app-wide, a `Bloc`/`Cubit` per screen |
 | Navigation | `go_router` with a session-driven redirect guard and deep link support |
-| Networking | `dio` behind a multi-client factory, opaque token auth with proactive expiry checks and single-flight refresh |
+| Networking | `grpc` over an HTTP/2 channel with generated service stubs, opaque token auth via `CallOptions` metadata with proactive expiry checks and single-flight refresh |
 | Errors | Sealed `AppException` hierarchy and a hand-rolled `Result<T>`, no exceptions across layers |
-| Device identity | Install id (UUID v4 in secure storage) plus app and device metadata headers on every request, device payload stored with the backend session at sign in |
+| Device identity | Install id (UUID v4 in secure storage) plus app and device metadata on every call, device details sent as the `common.v1.DeviceInfo` message and stored with the backend session at sign in |
 | App updates | Platform-native, no backend: Google Play in-app updates on Android, App Store version check with a dismissible prompt on iOS |
 | Ratings | Native in-app review prompts, throttled by session count, app age, and prompt interval |
 | DI | `get_it`, plain constructor injection |
@@ -39,7 +39,7 @@ Start every mobile project on solid ground: flavors, opaque-token sessions, bloc
 | Location | `LocationService` over `geolocator` with permission-aware `Result` API |
 | Biometrics | Opt-in app lock over `local_auth`: settings toggle, locks on background, Face ID and fingerprint |
 | Animations | Motion tokens, entrance/stagger/press widgets, Lottie with graceful fallback |
-| Localization | ARB files in `assets/l10n`, generated with `flutter gen-l10n` (en, fr), `Accept-Language` on every request |
+| Localization | ARB files in `assets/l10n`, generated with `flutter gen-l10n` (en, fr), `accept-language` metadata on every call |
 | Theming | Material 3 seeded color scheme, light and dark, widget-state-aware component themes, semantic color extension, Cupertino-adaptive widgets |
 | Security | No cleartext traffic, certificate pin scaffold, obfuscated release builds, device-bound keychain |
 | Quality | `very_good_analysis`, `dart format`, opt-in git pre-commit hooks, GitHub Actions CI |
@@ -59,6 +59,7 @@ The dev flavor ships with `useFakeAuth: true`, so the app runs end to end (sign 
 ```sh
 make get          # fetch dependencies
 make l10n         # regenerate localizations
+make proto        # regenerate gRPC/protobuf Dart from proto/
 make check        # format check + analyze
 make run-dev      # run the dev flavor
 make run-prod     # run the prod flavor
@@ -90,7 +91,8 @@ lib/
 ├── main_dev.dart / main_prod.dart   flavor entry points
 ├── app/                             bootstrap, root widget, router, theme
 ├── core/                            config, di, error, l10n, logging,
-│                                    network, session, storage, extensions
+│                                    network (gRPC + generated stubs),
+│                                    session, storage, extensions
 ├── features/
 │   ├── about/                       app name, version, licenses, rate app
 │   ├── app_update/                  native in-app updates (Play and App Store)
@@ -106,13 +108,14 @@ lib/
     └── widgets/                     adaptive, buttons, feedback, loaders
 ```
 
-The session flow is the backbone: the backend issues an opaque access token with an `expires_at` timestamp, `AuthInterceptor` checks that expiry before every request and refreshes stale tokens once for all concurrent requests (with a 401 retry as fallback), `SessionManager` persists and rotates tokens, `SessionBloc` exposes the session to the UI, and the router redirects based on it. A refresh failure ends the session gracefully with a localized notice, never a crash.
+The session flow is the backbone: the backend issues an opaque access token with an `expires_in` lifetime, `GrpcClient` attaches it as request metadata and refreshes stale tokens once for all concurrent calls (with an `unauthenticated` retry as fallback), `SessionManager` persists and rotates tokens through an injected refresher, `SessionBloc` exposes the session to the UI, and the router redirects based on it. A refresh failure ends the session gracefully with a localized notice, never a crash.
 
 ## Configuration checklist
 
 - [ ] Run the `project-setup` skill (or follow `.claude/skills/project-setup/SKILL.md` manually)
-- [ ] Set API base URLs in `lib/main_dev.dart` and `lib/main_prod.dart`, and endpoint paths via `AuthEndpoints` if they differ from the `/v1` defaults
-- [ ] Implement the backend contract (session device payload) described in [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md)
+- [ ] Set the gRPC host, port, and TLS flag in `lib/main_dev.dart` and `lib/main_prod.dart` (or override the dev flavor with `--dart-define=GRPC_HOST=... --dart-define=GRPC_PORT=... --dart-define=GRPC_TLS=...`)
+- [ ] Point `proto/` at your backend's `.proto` sources and run `make proto`; the committed stubs target `github.com/isyll/go-grpc-starter`
+- [ ] Review the backend contract described in [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md)
 - [ ] Set `appStoreId` in `lib/main_prod.dart` once the app exists in App Store Connect (required for the iOS update and review prompts)
 - [ ] `flutterfire configure` per flavor, paste into `lib/core/config/firebase/`, flip `configured` to `true`
 - [ ] Replace `assets/branding/` images, then `make icons splash`

@@ -1,6 +1,6 @@
 ---
 name: project-setup
-description: Bootstrap a new app from the Bedrock template. Renames the project, package, org, and bundle identifiers, sets API URLs and deep link hosts, wires Firebase, regenerates icons and splash screens, and cleans template leftovers. Use when the user asks to initialize, rename, or configure a new project created from this template.
+description: Bootstrap a new app from the Flutter gRPC Starter template. Renames the project, package, org, and bundle identifiers, sets the gRPC host and deep link hosts, wires Firebase, regenerates icons and splash screens, and cleans template leftovers. Use when the user asks to initialize, rename, or configure a new project created from this template.
 ---
 
 # Project setup
@@ -9,24 +9,24 @@ Collect from the user before starting (ask if missing):
 
 1. App name (display name, e.g. "My App") and project name (snake_case, e.g. `my_app`)
 2. Organization / package prefix (e.g. `com.acme`)
-3. API base URLs for dev and prod
-4. Auth endpoint paths if they differ from the defaults (`/v1/auth/login`, `/v1/auth/refresh`, `/v1/auth/logout`, `/v1/me`)
+3. gRPC host, port, and TLS flag for dev and prod
+4. The backend's `.proto` sources, if replacing the bundled `go-grpc-starter` contract
 5. Deep link hosts for dev and prod (or skip deep links)
 6. Whether Firebase/FCM is needed now
 7. The numeric App Store id, if the app already exists in App Store Connect (used for update and rating store links)
 
 ## Steps
 
-1. Rename Dart package: replace `name: bedrock` in `pubspec.yaml` with the project name, then replace every `package:bedrock/` import across `lib/` with `package:<project>/`.
+1. Rename Dart package: replace `name: flutter_grpc_starter` in `pubspec.yaml` with the project name, then replace every `package:flutter_grpc_starter/` import across `lib/` with `package:<project>/`.
 2. Rename Android package:
    - In `android/app/build.gradle.kts`: update `namespace`, `applicationId`, and the `resValue("string", "app_name", ...)` entries for both flavors.
-   - Move `android/app/src/main/kotlin/com/ibrahimasylla/bedrock/MainActivity.kt` to the new package path and update its `package` declaration.
+   - Move `android/app/src/main/kotlin/com/ibrahimasylla/grpcstarter/MainActivity.kt` to the new package path and update its `package` declaration.
    - Update `manifestPlaceholders["deepLinkHost"]` per flavor.
 3. Rename iOS bundle:
    - In `ios/Runner.xcodeproj/project.pbxproj`: update all `PRODUCT_BUNDLE_IDENTIFIER` values (dev configs get the `.dev` suffix), `APP_DISPLAY_NAME` values, and `DEEP_LINK_HOST` values.
    - In `ios/Runner/Info.plist`: update `CFBundleName` and the `CFBundleURLSchemes` custom scheme.
 4. Update app config:
-   - `lib/main_dev.dart` and `lib/main_prod.dart`: `appName`, `apiBaseUrl`, `appStoreId` (prod, when known), and `authEndpoints` (an `AuthEndpoints` instance) when the backend paths differ from the defaults.
+   - `lib/main_dev.dart` and `lib/main_prod.dart`: `appName`, the `grpc` `GrpcConfig` (host, port, TLS), and `appStoreId` (prod, when known). If you replaced the backend, update `proto/` and run `make proto`.
    - Android custom scheme in `android/app/src/main/AndroidManifest.xml` (`<data android:scheme=...>`).
    - iOS usage descriptions in `ios/Runner/Info.plist`: keep only the permissions the app requests and reword them for the product.
    - Certificate pinning placeholder domain in `android/app/src/main/res/xml/network_security_config.xml` when enabling pinning.

@@ -1,6 +1,6 @@
-# Bedrock
+# Flutter gRPC Starter
 
-Production-grade Flutter template for Android and iOS, paired with a REST API backend using opaque access tokens (access + refresh token pair, server-side revocation, expiry driven by the `expires_at` value returned at sign in).
+Production-grade Flutter template for Android and iOS, paired with a gRPC backend (`github.com/isyll/go-grpc-starter`) using opaque access tokens (access + refresh token pair, server-side revocation, expiry derived from the `expires_in` value returned at sign in).
 
 ## Commands
 
@@ -8,6 +8,7 @@ Production-grade Flutter template for Android and iOS, paired with a REST API ba
 | --- | --- |
 | Fetch dependencies | `flutter pub get` |
 | Generate localizations | `flutter gen-l10n` |
+| Generate gRPC/proto code | `buf generate` (wrapped by `make proto`) |
 | Analyze | `flutter analyze --no-pub` |
 | Format | `dart format lib test` |
 | Test | `flutter test` |
@@ -22,12 +23,12 @@ A `Makefile` wraps all of these (`make help`).
 
 - State management: `flutter_bloc` only. App-wide state lives in `SessionBloc` (auth session), `ThemeCubit`, and `LocaleCubit`, provided above `MaterialApp.router`. Screen state uses a `Bloc` or `Cubit` scoped to the page with `BlocProvider`.
 - Navigation: `go_router` in `lib/app/router/`. Auth guarding is done in the central `redirect`, refreshed through the `SessionBloc` stream. Deep links are handled natively by go_router (`FlutterDeepLinkingEnabled` on iOS, `autoVerify` intent filters on Android).
-- Networking: `dio` behind `ApiClientFactory` (`lib/core/network/`). Multiple clients are supported; each authenticated client gets an `AuthInterceptor` that checks token expiry before every request (refreshing proactively when stale) and falls back to a single-flight refresh-and-retry on 401. Token lifecycle is owned by `SessionManager` (`lib/core/session/`), which never touches UI or routing. Auth endpoint paths live in `AuthEndpoints` (`lib/core/config/app_config.dart`).
-- Client info: `DeviceInfoService` (`lib/services/device/`) loads app version, build number, and device details once at startup and owns the install id (UUID v4 persisted in secure storage). `ClientInfoInterceptor` stamps `X-App-Version`, `X-Build-Number`, `X-Platform`, `X-OS-Version`, and `X-Device-Id` on every request, and the device payload is sent in the sign in body so the backend stores it with the session.
+- Networking: `grpc` over an HTTP/2 `ClientChannel` built by `GrpcChannelFactory` and wrapped by `GrpcClient` (`lib/core/network/`). Generated service stubs live in `lib/core/network/generated/` (regenerated with `buf generate`); the vendored `.proto` sources live in `proto/`. `GrpcClient` attaches the bearer token, `accept-language`, and client-info as `CallOptions` metadata providers (`grpc_metadata.dart`), proactively refreshing a stale token before every call and falling back to a single-flight refresh-and-retry on `unauthenticated`. A debug-only `GrpcLoggingInterceptor` logs each call. Token lifecycle is owned by `SessionManager` (`lib/core/session/`), which refreshes through an injected `TokenRefresher` and never touches UI or routing. Connection settings live in `GrpcConfig` (`lib/core/config/grpc_config.dart`).
+- Client info: `DeviceInfoService` (`lib/services/device/`) loads app version, build number, and device details once at startup and owns the install id (UUID v4 persisted in secure storage). `GrpcClient` stamps `x-app-version`, `x-build-number`, `x-platform`, `x-os-version`, and `x-device-id` as request metadata, and the device details are sent as the `common.v1.DeviceInfo` message in the `Login` request so the backend stores them with the session.
 - App updates: platform-native, with no backend involvement. `AppUpdateService` (`lib/features/app_update/data/`) runs Google Play in-app updates on Android through `in_app_update`, and on iOS queries the App Store lookup API for the published version. `AppUpdateCubit` throttles the check (startup and on resume); on iOS it surfaces a newer version so `AppUpdateGate` shows a dismissible dialog once per version (dismissed versions are remembered), while on Android the Play flow handles everything itself. Opening the store listing goes through `StoreService` (needs `appStoreId` on iOS).
 - Store and reviews: `StoreService` (`lib/services/store/`) wraps `in_app_review` (native rating dialog, store listing). `AppReviewService` (`lib/services/review/`) throttles rating prompts by session count, days since first session, and days since last prompt.
 - Lifecycle: `AppLifecycleHandler` (`lib/app/`) owns the app-level `AppLifecycleListener`: update checks on resume, session counting and review prompts when the app returns to the foreground. `AppLockGate` keeps its own listener to lock on hide.
-- Errors: repositories return `Result<T>` (`lib/core/error/result.dart`), never throw across layers. `DioException` is mapped to a sealed `AppException` hierarchy via `mapDioException`. UI messages come from `AppExceptionMessage.localizedMessage`.
+- Errors: repositories return `Result<T>` (`lib/core/error/result.dart`), never throw across layers. `GrpcError` is mapped to a sealed `AppException` hierarchy via `mapGrpcError` (`lib/core/network/grpc_error_mapper.dart`), which reads the server's `ErrorInfo` app code and `BadRequest` field violations out of the status details. UI messages come from `AppExceptionMessage.localizedMessage`.
 - Logging: `AppLogger` (`lib/core/logging/`) fans `LogRecord`s out to `LogSink`s. `ConsoleLogSink` renders boxed, colored output in debug; `CrashlyticsLogSink` (`lib/services/crash/`) forwards breadcrumbs and non-fatal errors to Crashlytics in release builds when Firebase is configured.
 - Crash reporting: `CrashReporter` (`lib/services/crash/`) wraps Firebase Crashlytics. Fatal Flutter and platform errors are recorded from `bootstrap`, the session user id is attached, and collection is disabled in debug builds or when Firebase is absent.
 - Device services: `PermissionsService` (`lib/services/permissions/`) wraps runtime permissions behind `AppPermission` and `PermissionResult`; `MediaPickerService` (`lib/services/media/`) picks and captures images and files; `LocationService` (`lib/services/location/`) resolves positions through the same permission flow. All return `Result` failures (`PermissionException`, `LocationException`) that localize via `AppExceptionMessage`.
@@ -45,13 +46,16 @@ lib/
   main_dev.dart, main_prod.dart    flavor entry points
   app/                             bootstrap, root widget, router, theme
   core/                            config, di, error, l10n (generated), logging,
-                                   network, session, storage, extensions, utils
+                                   network (gRPC channel, metadata, interceptors,
+                                   and generated stubs), session, storage,
+                                   extensions, utils
   features/<name>/                 data / domain / presentation per feature
   services/                        crash reporting, device info, location,
                                    media picking, permissions, push
                                    notifications, review, store
   shared/                          animations toolkit and reusable UI widgets
                                    (adaptive, buttons, feedback, loaders)
+proto/                             vendored .proto sources (buf generate target)
 ```
 
 ## Conventions
@@ -63,10 +67,11 @@ lib/
 - `dart format` with the default 80-column width is the only accepted formatting.
 - New features follow the existing feature layout and register dependencies in `injector.dart`.
 - Strings shown to users always go through l10n; add keys to both `app_en.arb` and `app_fr.arb`.
-- Tests mirror the `lib/` layout under `test/`. Shared hand-written fakes live in `test/helpers/fakes.dart`; no mocking framework. Bloc and cubit tests use `bloc_test`. HTTP is faked at the Dio `HttpClientAdapter` seam. Classes that tests need to fake stay non-final.
+- Tests mirror the `lib/` layout under `test/`. Shared hand-written fakes live in `test/helpers/fakes.dart`; no mocking framework. Bloc and cubit tests use `bloc_test`. gRPC is faked by injecting scripted `AuthApi` implementations and `TokenRefresher`s into the data and session layers; the App Store lookup is faked with `package:http`'s `MockClient`. Classes that tests need to fake stay non-final.
+- Protobuf/gRPC Dart is generated from `proto/` into `lib/core/network/generated/` with `buf generate` (`make proto`); the output is committed and excluded from analysis and formatting churn. Edit the `.proto` sources, never the generated code.
 - Secrets never enter the repo: `android/key.properties`, Firebase config files, and real API keys are gitignored. Firebase options placeholders live in `lib/core/config/firebase/` and are replaced per project via FlutterFire CLI.
 - Do not add dependencies without strong justification; prefer hand-written code for simple concerns.
 
 ## Template bootstrap
 
-This repo is a template. To start a real project from it, run the `project-setup` skill in `.claude/skills/project-setup/` (Claude Code) or the `/project-setup` prompt in `.github/prompts/` (GitHub Copilot). Both rename the app, package, and bundle identifiers, set API URLs and deep link hosts, and regenerate icons and splash screens. The same duality exists for scaffolding features: `new-feature` skill or `/new-feature` prompt. GitHub-side AI automation uses the Copilot coding agent; its environment is prepared by `.github/workflows/copilot-setup-steps.yml`.
+This repo is a template. To start a real project from it, run the `project-setup` skill in `.claude/skills/project-setup/` (Claude Code) or the `/project-setup` prompt in `.github/prompts/` (GitHub Copilot). Both rename the app, package, and bundle identifiers, set the gRPC host and deep link hosts, and regenerate icons and splash screens. The same duality exists for scaffolding features: `new-feature` skill or `/new-feature` prompt. GitHub-side AI automation uses the Copilot coding agent; its environment is prepared by `.github/workflows/copilot-setup-steps.yml`.

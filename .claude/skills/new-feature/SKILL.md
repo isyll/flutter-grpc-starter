@@ -1,6 +1,6 @@
 ---
 name: new-feature
-description: Scaffold a new feature following the Bedrock architecture (data, domain, presentation, bloc/cubit, routing, l10n, DI). Use when the user asks to add a screen, page, or feature.
+description: Scaffold a new feature following the Flutter gRPC Starter architecture (data, domain, presentation, bloc/cubit, routing, l10n, DI). Use when the user asks to add a screen, page, or feature.
 ---
 
 # New feature
@@ -8,7 +8,7 @@ description: Scaffold a new feature following the Bedrock architecture (data, do
 Given a feature name `<feature>` (snake_case):
 
 1. Create the layout under `lib/features/<feature>/`:
-   - `data/<feature>_api.dart`: abstract interface plus an HTTP implementation taking `ApiClient`, and a fake implementation if the backend is not ready.
+   - `data/<feature>_api.dart`: abstract interface plus a gRPC implementation taking `GrpcClient` (call `client.<service>.<method>()` through `client.call`/`client.run`), and a fake implementation if the backend is not ready.
    - `domain/`: entities (plain `Equatable` classes with hand-written `fromJson`/`toJson`) and `<feature>_repository.dart` returning `Result<T>`.
    - `presentation/bloc/` or `presentation/cubit/`: a `Bloc` for event-driven or long-lived flows, a `Cubit` for simple screen state. States are `Equatable` subclasses in a `part` file.
    - `presentation/pages/<feature>_page.dart`: page widget providing its bloc via `BlocProvider`.
