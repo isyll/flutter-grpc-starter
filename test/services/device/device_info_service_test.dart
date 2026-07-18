@@ -18,8 +18,8 @@ void main() {
       manufacturer: 'Google',
     ),
     packageInfoLoader: () async => .new(
-      appName: 'Bedrock',
-      packageName: 'com.example.bedrock',
+      appName: 'Flutter gRPC Starter',
+      packageName: 'com.example.grpcstarter',
       version: '1.2.3',
       buildNumber: '42',
     ),
@@ -61,27 +61,13 @@ void main() {
       expect(() => service.info, throwsStateError);
     });
 
-    test('builds the session payload from device and app details', () async {
-      final info = await buildService(.new()).load();
-
-      expect(info.toSessionPayload(), {
-        'device_id': info.deviceId,
-        'platform': 'android',
-        'os_version': '15',
-        'model': 'Pixel 9',
-        'manufacturer': 'Google',
-        'app_version': '1.2.3',
-        'build_number': '42',
-      });
-    });
-
     test('falls back to host platform details when the loader fails', () async {
       final service = DeviceInfoService(
         storage: InMemorySecureStorage(),
         platformDetailsLoader: () async => throw Exception('unavailable'),
         packageInfoLoader: () async => .new(
-          appName: 'Bedrock',
-          packageName: 'com.example.bedrock',
+          appName: 'Flutter gRPC Starter',
+          packageName: 'com.example.grpcstarter',
           version: '1.2.3',
           buildNumber: '42',
         ),

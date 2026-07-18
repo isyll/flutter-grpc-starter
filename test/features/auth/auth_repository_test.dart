@@ -1,4 +1,3 @@
-import 'package:flutter_grpc_starter/core/config/app_config.dart';
 import 'package:flutter_grpc_starter/core/error/app_exception.dart';
 import 'package:flutter_grpc_starter/core/session/session_manager.dart';
 import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
@@ -28,7 +27,7 @@ void main() {
     secureStorage = .new();
     keyValueStorage = .new();
     api = .new();
-    session = .new(config: _config, storage: secureStorage);
+    session = .new(storage: secureStorage, refresher: unexpectedRefresh);
     repository = .new(
       api: api,
       session: session,
@@ -73,7 +72,10 @@ void main() {
     api.signInResult = successfulSignIn();
     await repository.signIn(email: 'demo@example.com', password: 'password1');
 
-    final revived = SessionManager(config: _config, storage: secureStorage);
+    final revived = SessionManager(
+      storage: secureStorage,
+      refresher: unexpectedRefresh,
+    );
     addTearDown(revived.dispose);
     final restoredRepository = AuthRepository(
       api: api,
@@ -89,7 +91,7 @@ void main() {
 
   test('signIn maps API failures without touching the session', () async {
     await repository.restore();
-    api.signInError = unauthorizedDioException();
+    api.signInError = unauthorizedFailure();
 
     final result = await repository.signIn(
       email: 'demo@example.com',
@@ -114,9 +116,3 @@ void main() {
     expect(keyValueStorage.getString(StorageKeys.currentUser), isNull);
   });
 }
-
-const _config = AppConfig(
-  flavor: .dev,
-  appName: 'Test',
-  apiBaseUrl: 'https://api.test',
-);

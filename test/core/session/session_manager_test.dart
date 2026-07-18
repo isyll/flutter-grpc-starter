@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
-import 'package:flutter_grpc_starter/core/config/app_config.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
 import 'package:flutter_grpc_starter/core/session/auth_tokens.dart';
 import 'package:flutter_grpc_starter/core/session/session_manager.dart';
 import 'package:flutter_grpc_starter/core/storage/storage_keys.dart';
@@ -16,17 +13,16 @@ void main() {
 
   setUp(() => storage = .new());
 
-  SessionManager buildManager(_ScriptedAdapter adapter) {
-    final dio = Dio(.new(baseUrl: _config.apiBaseUrl))
-      ..httpClientAdapter = adapter;
-    return .new(config: _config, storage: storage, tokenClient: dio);
-  }
+  SessionManager buildManager({TokenRefresher? refresher}) => .new(
+    storage: storage,
+    refresher: refresher ?? unexpectedRefresh,
+  );
 
-  _ScriptedAdapter refuseRequests() {
-    return .new(
-      (options) => fail('Unexpected HTTP request to ${options.path}'),
-    );
-  }
+  AuthTokens freshTokens() => .new(
+    accessToken: 'fresh-access',
+    refreshToken: 'fresh-refresh',
+    expiresAt: .now().toUtc().add(const .new(hours: 1)),
+  );
 
   AuthTokens tokensExpiringIn(Duration duration) => .new(
     accessToken: 'access',
@@ -36,7 +32,7 @@ void main() {
 
   group('restore', () {
     test('ends up signed out when nothing is stored', () async {
-      final manager = buildManager(refuseRequests());
+      final manager = buildManager();
 
       await manager.restore();
 
@@ -50,7 +46,7 @@ void main() {
         StorageKeys.refreshToken: 'stored-refresh',
         StorageKeys.accessTokenExpiry: '2020-01-01T00:00:00.000Z',
       });
-      final manager = buildManager(refuseRequests());
+      final manager = buildManager();
 
       await manager.restore();
 
@@ -62,7 +58,7 @@ void main() {
 
   group('start and end', () {
     test('start persists tokens and activates the session', () async {
-      final manager = buildManager(refuseRequests());
+      final manager = buildManager();
 
       await manager.start(tokensExpiringIn(const .new(hours: 1)));
 
@@ -73,7 +69,7 @@ void main() {
     });
 
     test('end wipes tokens and deactivates the session', () async {
-      final manager = buildManager(refuseRequests());
+      final manager = buildManager();
       await manager.start(tokensExpiringIn(const .new(hours: 1)));
 
       await manager.end();
@@ -84,48 +80,45 @@ void main() {
   });
 
   group('validAccessToken', () {
-    test('returns the current token without a request when valid', () async {
-      final adapter = refuseRequests();
-      final manager = buildManager(adapter);
+    test('returns the current token without refreshing when valid', () async {
+      final manager = buildManager();
       await manager.start(tokensExpiringIn(const .new(hours: 1)));
 
       final token = await manager.validAccessToken();
 
       expect(token, 'access');
-      expect(adapter.requestCount, 0);
     });
 
     test('refreshes an expired token before returning it', () async {
-      final adapter = _ScriptedAdapter(
-        (options) async => _jsonResponse(200, {
-          'access_token': 'fresh-access',
-          'refresh_token': 'fresh-refresh',
-          'expires_at': '2030-01-01T00:00:00Z',
-        }),
+      var refreshCalls = 0;
+      final manager = buildManager(
+        refresher: (_) async {
+          refreshCalls++;
+          return freshTokens();
+        },
       );
-      final manager = buildManager(adapter);
       await manager.start(tokensExpiringIn(const .new(minutes: -5)));
 
       final token = await manager.validAccessToken();
 
       expect(token, 'fresh-access');
-      expect(adapter.requestCount, 1);
+      expect(refreshCalls, 1);
       expect(storage.values[StorageKeys.accessToken], 'fresh-access');
       expect(storage.values[StorageKeys.refreshToken], 'fresh-refresh');
     });
   });
 
   group('refreshAccessToken', () {
-    test('deduplicates concurrent refreshes into one request', () async {
+    test('deduplicates concurrent refreshes into one call', () async {
       final gate = Completer<void>();
-      final adapter = _ScriptedAdapter((options) async {
-        await gate.future;
-        return _jsonResponse(200, {
-          'access_token': 'fresh-access',
-          'refresh_token': 'fresh-refresh',
-        });
-      });
-      final manager = buildManager(adapter);
+      var refreshCalls = 0;
+      final manager = buildManager(
+        refresher: (_) async {
+          refreshCalls++;
+          await gate.future;
+          return freshTokens();
+        },
+      );
       await manager.start(tokensExpiringIn(const .new(minutes: -5)));
 
       final first = manager.refreshAccessToken();
@@ -134,26 +127,13 @@ void main() {
       final results = await Future.wait([first, second]);
 
       expect(results, ['fresh-access', 'fresh-access']);
-      expect(adapter.requestCount, 1);
-    });
-
-    test('keeps the previous refresh token when rotation is absent', () async {
-      final adapter = _ScriptedAdapter(
-        (options) async => _jsonResponse(200, {'access_token': 'fresh'}),
-      );
-      final manager = buildManager(adapter);
-      await manager.start(tokensExpiringIn(const .new(minutes: -5)));
-
-      await manager.refreshAccessToken();
-
-      expect(storage.values[StorageKeys.refreshToken], 'refresh');
+      expect(refreshCalls, 1);
     });
 
     test('ends the session when the refresh token is rejected', () async {
-      final adapter = _ScriptedAdapter(
-        (options) async => _jsonResponse(401, {'message': 'revoked'}),
+      final manager = buildManager(
+        refresher: (_) async => throw unauthorizedFailure(),
       );
-      final manager = buildManager(adapter);
       await manager.start(tokensExpiringIn(const .new(minutes: -5)));
 
       final token = await manager.refreshAccessToken();
@@ -164,10 +144,10 @@ void main() {
     });
 
     test('keeps the session alive on transient refresh failures', () async {
-      final adapter = _ScriptedAdapter(
-        (options) async => _jsonResponse(503, {'message': 'try later'}),
+      final manager = buildManager(
+        refresher: (_) async =>
+            throw const NetworkException('offline', kind: .offline),
       );
-      final manager = buildManager(adapter);
       await manager.start(tokensExpiringIn(const .new(minutes: -5)));
 
       final token = await manager.refreshAccessToken();
@@ -177,39 +157,4 @@ void main() {
       expect(storage.values[StorageKeys.refreshToken], 'refresh');
     });
   });
-}
-
-const _config = AppConfig(
-  flavor: .dev,
-  appName: 'Test',
-  apiBaseUrl: 'https://api.test',
-);
-
-ResponseBody _jsonResponse(int statusCode, Map<String, dynamic> body) =>
-    .fromString(
-      jsonEncode(body),
-      statusCode,
-      headers: {
-        Headers.contentTypeHeader: [Headers.jsonContentType],
-      },
-    );
-
-final class _ScriptedAdapter implements HttpClientAdapter {
-  _ScriptedAdapter(this._handler);
-
-  final Future<ResponseBody> Function(RequestOptions options) _handler;
-  int requestCount = 0;
-
-  @override
-  void close({bool force = false}) {}
-
-  @override
-  Future<ResponseBody> fetch(
-    RequestOptions options,
-    Stream<Uint8List>? requestStream,
-    Future<void>? cancelFuture,
-  ) {
-    requestCount++;
-    return _handler(options);
-  }
 }

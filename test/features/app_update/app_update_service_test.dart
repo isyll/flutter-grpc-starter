@@ -1,36 +1,34 @@
-import 'package:dio/dio.dart';
+import 'dart:convert';
+
 import 'package:flutter_grpc_starter/features/app_update/data/app_update_service.dart';
 import 'package:flutter_grpc_starter/services/device/device_info.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 
 import '../../helpers/fakes.dart';
 
 void main() {
   AppUpdateService buildService({
     required DeviceInfo deviceInfo,
-    Future<ResponseBody> Function(RequestOptions options)? handler,
+    http.Client? httpClient,
     PlatformUpdateRunner? androidUpdateRunner,
-  }) {
-    final dio =
-        Dio(
-            .new(baseUrl: AppUpdateService.appStoreLookupBaseUrl),
-          )
-          ..httpClientAdapter = ScriptedHttpAdapter(
-            handler ?? (_) async => jsonResponseBody(const {}),
-          );
+  }) => .new(
+    deviceInfo: deviceInfo,
+    httpClient: httpClient ?? MockClient((_) async => http.Response('{}', 200)),
+    androidUpdateRunner: androidUpdateRunner,
+  );
 
-    return .new(
-      deviceInfo: deviceInfo,
-      storeClient: .new(dio),
-      androidUpdateRunner: androidUpdateRunner,
-    );
-  }
+  MockClient lookupReturning(
+    Map<String, dynamic> body, {
+    int statusCode = 200,
+  }) => .new((_) async => http.Response(jsonEncode(body), statusCode));
 
   group('iOS', () {
     test('returns the store version when it is newer', () async {
       final service = buildService(
         deviceInfo: iosDeviceInfo,
-        handler: (_) async => jsonResponseBody(const {
+        httpClient: lookupReturning(const {
           'resultCount': 1,
           'results': [
             {'version': '2.0.0'},
@@ -44,7 +42,7 @@ void main() {
     test('returns null when the installed version is current', () async {
       final service = buildService(
         deviceInfo: iosDeviceInfo,
-        handler: (_) async => jsonResponseBody(const {
+        httpClient: lookupReturning(const {
           'results': [
             {'version': '1.2.3'},
           ],
@@ -57,7 +55,7 @@ void main() {
     test('returns null and swallows lookup failures', () async {
       final service = buildService(
         deviceInfo: iosDeviceInfo,
-        handler: (_) async => jsonResponseBody(const {}, statusCode: 500),
+        httpClient: lookupReturning(const {}, statusCode: 500),
       );
 
       expect(await service.check(), isNull);

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_grpc_starter/core/config/app_config.dart';
 import 'package:flutter_grpc_starter/core/l10n/app_localizations.dart';
 import 'package:flutter_grpc_starter/core/session/session_manager.dart';
 import 'package:flutter_grpc_starter/features/auth/domain/auth_repository.dart';
@@ -26,7 +25,10 @@ void main() {
         ),
       ),
     );
-    session = .new(config: _config, storage: InMemorySecureStorage());
+    session = .new(
+      storage: InMemorySecureStorage(),
+      refresher: unexpectedRefresh,
+    );
     repository = .new(
       api: api,
       session: session,
@@ -88,9 +90,3 @@ void main() {
     expect(api.lastSignInDevice, isNotNull);
   });
 }
-
-const _config = AppConfig(
-  flavor: .dev,
-  appName: 'Test',
-  apiBaseUrl: 'https://api.test',
-);

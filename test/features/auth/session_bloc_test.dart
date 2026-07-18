@@ -1,4 +1,3 @@
-import 'package:flutter_grpc_starter/core/config/app_config.dart';
 import 'package:flutter_grpc_starter/core/session/session_manager.dart';
 import 'package:flutter_grpc_starter/features/auth/domain/auth_repository.dart';
 import 'package:flutter_grpc_starter/features/auth/presentation/bloc/session_bloc.dart';
@@ -22,8 +21,8 @@ void main() {
       ),
     );
     session = .new(
-      config: _config,
       storage: InMemorySecureStorage(),
+      refresher: unexpectedRefresh,
     );
     repository = .new(
       api: api,
@@ -67,9 +66,3 @@ void main() {
     expect(bloc.state.expired, isFalse);
   });
 }
-
-const _config = AppConfig(
-  flavor: .dev,
-  appName: 'Test',
-  apiBaseUrl: 'https://api.test',
-);
