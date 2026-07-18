@@ -1,6 +1,6 @@
 # Customization guide
 
-How to turn a fresh clone of Bedrock into your own app. Every section lists the exact files to touch, what the backend must provide, and the defaults you can keep.
+How to turn a fresh clone of Flutter gRPC Starter into your own app. Every section lists the exact files to touch, what the backend must provide, and the defaults you can keep.
 
 > [!TIP]
 > Most of this is automated. Open the repo with Claude Code and run the `project-setup` skill, or use the `/project-setup` prompt with GitHub Copilot. Come back here when you need to understand or adjust a single piece by hand.
@@ -8,92 +8,87 @@ How to turn a fresh clone of Bedrock into your own app. Every section lists the 
 ## Checklist for a new project
 
 - [ ] Rename the app, package, and bundle identifiers
-- [ ] Set the API base URLs and check the endpoint paths
+- [ ] Set the gRPC host, port, and TLS flag
+- [ ] Point `proto/` at your backend and regenerate the stubs
 - [ ] Configure deep link scheme and hosts
 - [ ] Wire Firebase per flavor (or skip it, everything degrades gracefully)
 - [ ] Replace branding assets and regenerate icons and splash screens
 - [ ] Set the App Store id for update and review flows
-- [ ] Implement the two backend contracts below (session device info, version status)
+- [ ] Review the backend contract below (sign in device info, token pair)
 - [ ] Harden for release (signing, certificate pinning)
 
 ## 1. Identity
 
 | What | Where |
 | --- | --- |
-| Dart package name | `pubspec.yaml` (`name:`), then every `package:bedrock/` import |
+| Dart package name | `pubspec.yaml` (`name:`), then every `package:flutter_grpc_starter/` import |
 | Display name | `appName` in `lib/main_dev.dart` and `lib/main_prod.dart`, `resValue` entries in `android/app/build.gradle.kts`, `APP_DISPLAY_NAME` in `ios/Runner.xcodeproj/project.pbxproj` |
 | Android package | `namespace` and `applicationId` in `android/app/build.gradle.kts`, `MainActivity.kt` path and `package` declaration |
 | iOS bundle id | `PRODUCT_BUNDLE_IDENTIFIER` values in `project.pbxproj` (dev configurations keep the `.dev` suffix) |
 | App title (localized) | `appTitle` in `assets/l10n/app_en.arb` and `app_fr.arb`, then `flutter gen-l10n` |
 
-## 2. API configuration
+## 2. gRPC configuration
 
-Each flavor entry point builds an immutable `AppConfig`:
+Each flavor entry point builds an immutable `AppConfig` carrying a `GrpcConfig`:
 
 ```dart
 AppConfig(
   flavor: .prod,
   appName: 'My App',
-  apiBaseUrl: 'https://api.example.com',
+  grpc: GrpcConfig(host: 'api.example.com'),
   appStoreId: '1234567890',
 )
 ```
 
-Endpoint paths carry their own version prefix and live in `AuthEndpoints` (`lib/core/config/app_config.dart`). Defaults:
+`GrpcConfig` (`lib/core/config/grpc_config.dart`) holds the `host`, `port` (default `443`), and `useTls` (default `true`). The dev flavor reads `GRPC_HOST`, `GRPC_PORT`, and `GRPC_TLS` dart-defines so you can point it at a local backend without editing code:
 
-| Purpose | Default path |
-| --- | --- |
-| Sign in | `/v1/auth/login` |
-| Token refresh | `/v1/auth/refresh` |
-| Sign out | `/v1/auth/logout` |
-| Profile | `/v1/me` |
-
-Override any of them per flavor:
-
-```dart
-AppConfig(
-  // ...
-  authEndpoints: AuthEndpoints(signIn: '/v2/sessions'),
-)
+```sh
+flutter run --flavor dev --target lib/main_dev.dart \
+  --dart-define=GRPC_HOST=10.0.2.2 \
+  --dart-define=GRPC_PORT=8080 \
+  --dart-define=GRPC_TLS=false
 ```
 
-### Headers sent on every request
+The API is defined by the `.proto` files in `proto/` and generated into `lib/core/network/generated/` with `buf generate` (`make proto`). The committed stubs target [`go-grpc-starter`](https://github.com/isyll/go-grpc-starter) and expose `AuthService`, `UserService`, `HealthService`, and `AdminService`, all reachable through `GrpcClient`. Point `proto/` at your own backend's sources and regenerate to change the contract.
 
-`ClientInfoInterceptor` and `LocaleInterceptor` decorate every request from every client (including the token refresh client):
+### Metadata sent on every call
 
-| Header | Example | Source |
+`GrpcClient` attaches these via `CallOptions` metadata providers (`lib/core/network/grpc_metadata.dart`):
+
+| Key | Example | Source |
 | --- | --- | --- |
-| `X-App-Version` | `1.4.2` | `package_info_plus` |
-| `X-Build-Number` | `58` | `package_info_plus` |
-| `X-Platform` | `android` / `ios` | `device_info_plus` |
-| `X-OS-Version` | `17.5` | `device_info_plus` |
-| `X-Device-Id` | `4fd6…` (UUID v4) | Generated once, kept in secure storage |
-| `Accept-Language` | `fr-FR` | Locale setting, falls back to the system locale |
+| `authorization` | `Bearer 4fd6…` | Access token; omitted on public methods (login, register, refresh, verify, reset) |
+| `x-app-version` | `1.4.2` | `package_info_plus` |
+| `x-build-number` | `58` | `package_info_plus` |
+| `x-platform` | `android` / `ios` | `device_info_plus` |
+| `x-os-version` | `17.5` | `device_info_plus` |
+| `x-device-id` | `4fd6…` (UUID v4) | Generated once, kept in secure storage |
+| `accept-language` | `fr` | Locale setting, falls back to the system locale |
 
 > [!NOTE]
 > The device id is an install id: it is generated on first launch and survives app updates. On iOS it also survives reinstalls (keychain); on Android it resets when the user clears app data or reinstalls. No hardware identifier is ever read.
 
 ## 3. Backend contract
 
-### Session creation (stateful auth)
+### Sign in with device info
 
-`POST /v1/auth/login` receives the credentials plus a `device` object. Store it with the server-side session so users can review and revoke devices later:
+`AuthService.Login` receives the credentials plus a `common.v1.DeviceInfo` message. The backend stores it with the server-side session so users can review and revoke devices later:
 
-```json
-{
-  "email": "user@example.com",
-  "password": "…",
-  "device": {
-    "device_id": "4fd6a2e8-6f5b-4d1c-9a3e-8b2f0c7d5e1a",
-    "platform": "android",
-    "os_version": "15",
-    "model": "Pixel 9",
-    "manufacturer": "Google",
-    "app_version": "1.4.2",
-    "build_number": "58"
-  }
+```proto
+message DeviceInfo {
+  string device_id = 1;
+  string name = 2;
+  string platform = 3;
+  string model = 4;
+  string manufacturer = 5;
 }
 ```
+
+A successful `Login`, `Register`, or `RefreshToken` returns a `common.v1.TokenPair` (`access_token`, `refresh_token`, `expires_in` seconds, and the `User`); the client derives the access-token expiry from `expires_in`. `SessionManager` refreshes through `AuthService.RefreshToken`, and `AuthRepository.refreshProfile` reads `UserService.GetMe`.
+
+### Errors
+
+Domain errors come back as a gRPC status whose message is already localized, enriched with `google.rpc.ErrorInfo` (a stable `reason` code such as `INVALID_CREDENTIALS`) and, for validation failures, `google.rpc.BadRequest` field violations. `mapGrpcError` turns these into the `AppException` hierarchy so the UI can react to the type and the machine-readable code.
 
 ### App updates
 
