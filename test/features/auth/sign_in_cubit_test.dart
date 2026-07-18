@@ -1,5 +1,4 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:flutter_grpc_starter/core/config/app_config.dart';
 import 'package:flutter_grpc_starter/core/error/app_exception.dart';
 import 'package:flutter_grpc_starter/core/session/session_manager.dart';
 import 'package:flutter_grpc_starter/features/auth/domain/auth_repository.dart';
@@ -16,8 +15,8 @@ void main() {
   setUp(() {
     api = .new();
     session = .new(
-      config: _config,
       storage: InMemorySecureStorage(),
+      refresher: unexpectedRefresh,
     );
     repository = .new(
       api: api,
@@ -52,7 +51,7 @@ void main() {
     blocTest<SignInCubit, SignInState>(
       'emits submitting then a localized failure on rejection',
       build: () => .new(authRepository: repository),
-      setUp: () => api.signInError = unauthorizedDioException(),
+      setUp: () => api.signInError = unauthorizedFailure(),
       act: (cubit) =>
           cubit.submit(email: 'demo@example.com', password: 'wrong'),
       expect: () => [
@@ -77,9 +76,3 @@ void main() {
     );
   });
 }
-
-const _config = AppConfig(
-  flavor: .dev,
-  appName: 'Test',
-  apiBaseUrl: 'https://api.test',
-);

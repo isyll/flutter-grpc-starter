@@ -1,8 +1,5 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
-
-import 'package:dio/dio.dart';
+import 'package:flutter_grpc_starter/core/error/app_exception.dart';
+import 'package:flutter_grpc_starter/core/session/auth_tokens.dart';
 import 'package:flutter_grpc_starter/core/storage/key_value_storage.dart';
 import 'package:flutter_grpc_starter/core/storage/secure_storage.dart';
 import 'package:flutter_grpc_starter/features/app_update/data/app_update_service.dart';
@@ -16,7 +13,7 @@ import 'package:local_auth/local_auth.dart';
 
 const iosDeviceInfo = DeviceInfo(
   deviceId: 'test-device-id',
-  bundleId: 'com.example.bedrock',
+  bundleId: 'com.example.grpcstarter',
   platform: 'ios',
   osVersion: '17.5',
   model: 'iPhone16,1',
@@ -27,7 +24,7 @@ const iosDeviceInfo = DeviceInfo(
 
 const testDeviceInfo = DeviceInfo(
   deviceId: 'test-device-id',
-  bundleId: 'com.example.bedrock',
+  bundleId: 'com.example.grpcstarter',
   platform: 'android',
   osVersion: '15',
   model: 'Pixel 9',
@@ -36,27 +33,11 @@ const testDeviceInfo = DeviceInfo(
   buildNumber: '42',
 );
 
-ResponseBody jsonResponseBody(Object? body, {int statusCode = 200}) =>
-    .fromString(
-      jsonEncode(body),
-      statusCode,
-      headers: {
-        Headers.contentTypeHeader: ['application/json'],
-      },
-    );
+UnauthorizedException unauthorizedFailure() =>
+    const UnauthorizedException('Invalid credentials');
 
-DioException unauthorizedDioException() {
-  final options = RequestOptions(path: '/v1/auth/login');
-  return .new(
-    requestOptions: options,
-    type: .badResponse,
-    response: Response<Map<String, dynamic>>(
-      requestOptions: options,
-      statusCode: 401,
-      data: {'message': 'Invalid credentials'},
-    ),
-  );
-}
+Future<AuthTokens> unexpectedRefresh(String refreshToken) async =>
+    throw StateError('Token refresh was not expected');
 
 final class FakeAppUpdateService implements AppUpdateService {
   FakeAppUpdateService([this.storeVersion]);
@@ -72,10 +53,7 @@ final class FakeAppUpdateService implements AppUpdateService {
 }
 
 final class FakeBiometricsService implements BiometricsService {
-  FakeBiometricsService({
-    this.supported = true,
-    this.authResult = .success,
-  });
+  FakeBiometricsService({this.supported = true, this.authResult = .success});
 
   bool supported;
   BiometricAuthResult authResult;
@@ -194,14 +172,19 @@ final class ScriptedAuthApi implements AuthApi {
   static const demoUser = User(
     id: '42',
     email: 'demo@example.com',
-    name: 'Demo User',
+    firstName: 'Demo',
+    lastName: 'User',
+    emailVerified: true,
   );
 
   SignInResult? signInResult;
   Exception? signInError;
   User? profile;
+  AuthTokens? refreshResult;
+  Exception? refreshError;
   DeviceInfo? lastSignInDevice;
   int signOutCalls = 0;
+  int refreshCalls = 0;
 
   @override
   Future<User> fetchProfile() async => profile ?? demoUser;
@@ -220,24 +203,14 @@ final class ScriptedAuthApi implements AuthApi {
 
   @override
   Future<void> signOut() async => signOutCalls++;
-}
-
-final class ScriptedHttpAdapter implements HttpClientAdapter {
-  ScriptedHttpAdapter(this.handler);
-
-  final Future<ResponseBody> Function(RequestOptions options) handler;
-  int requestCount = 0;
 
   @override
-  void close({bool force = false}) {}
-
-  @override
-  Future<ResponseBody> fetch(
-    RequestOptions options,
-    Stream<Uint8List>? requestStream,
-    Future<void>? cancelFuture,
-  ) {
-    requestCount++;
-    return handler(options);
+  Future<AuthTokens> refreshTokens(String refreshToken) async {
+    refreshCalls++;
+    final error = refreshError;
+    if (error != null) throw error;
+    final tokens = refreshResult;
+    if (tokens == null) throw StateError('No refresh result scripted');
+    return tokens;
   }
 }
