@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package user.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "common/v1/common.proto";
+
+// UserService handles the authenticated user's own profile, settings,
+// push tokens, and notification preferences.
+service UserService {
+  // GetUser is declared before the /v1/users/me routes on purpose: the
+  // grpc-gateway mux gives later registrations priority, so the literal
+  // "me" routes must come after the {id} wildcard to win the match.
+  rpc GetUser(GetUserRequest) returns (common.v1.PublicUser) {
+    option (google.api.http) = {get: "/v1/users/{id}"};
+  }
+  rpc GetMe(google.protobuf.Empty) returns (common.v1.User) {
+    option (google.api.http) = {get: "/v1/users/me"};
+  }
+  rpc UpdateMe(UpdateMeRequest) returns (common.v1.User) {
+    option (google.api.http) = {
+      patch: "/v1/users/me"
+      body: "*"
+    };
+  }
+  rpc DeleteMe(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/users/me"};
+  }
+
+  // UploadAvatar streams an avatar image to server-side object storage. The
+  // first message must carry content_type; subsequent messages carry file
+  // chunks. Size and content type are validated server-side. Client-streaming,
+  // so it is intentionally gRPC-only and not exposed through the gateway.
+  rpc UploadAvatar(stream UploadAvatarRequest) returns (UploadAvatarResponse);
+
+  rpc GetSettings(google.protobuf.Empty) returns (common.v1.Settings) {
+    option (google.api.http) = {get: "/v1/users/me/settings"};
+  }
+  rpc UpdateSettings(common.v1.Settings) returns (common.v1.Settings) {
+    option (google.api.http) = {
+      put: "/v1/users/me/settings"
+      body: "*"
+    };
+  }
+
+  rpc RegisterPushToken(RegisterPushTokenRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/users/me/push-tokens"
+      body: "*"
+    };
+  }
+  rpc GetNotificationPreferences(google.protobuf.Empty) returns (NotificationPreferences) {
+    option (google.api.http) = {get: "/v1/users/me/notification-preferences"};
+  }
+  rpc UpdateNotificationPreferences(NotificationPreferences) returns (NotificationPreferences) {
+    option (google.api.http) = {
+      put: "/v1/users/me/notification-preferences"
+      body: "*"
+    };
+  }
+}
+
+message UpdateMeRequest {
+  optional string first_name = 1 [(buf.validate.field).string.max_len = 100];
+  optional string last_name = 2 [(buf.validate.field).string.max_len = 100];
+  optional string bio = 3 [(buf.validate.field).string.max_len = 1000];
+  optional string avatar = 4 [(buf.validate.field).string.max_len = 2048];
+}
+
+message GetUserRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 64];
+}
+
+message UploadAvatarRequest {
+  oneof data {
+    string content_type = 1 [(buf.validate.field).string.max_len = 100];
+    bytes chunk = 2 [(buf.validate.field).bytes.max_len = 1048576];
+  }
+}
+
+message UploadAvatarResponse {
+  string avatar_url = 1;
+}
+
+message RegisterPushTokenRequest {
+  string device_id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 128];
+  string token = 2 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 512];
+  string platform = 3 [(buf.validate.field).string.max_len = 32];
+  string app_version = 4 [(buf.validate.field).string.max_len = 32];
+}
+
+message NotificationPreferences {
+  bool push = 1;
+  bool email = 2;
+  bool marketing = 3;
+  bool quiet_hours_enabled = 4;
+  string quiet_hours_start = 5;
+  string quiet_hours_end = 6;
+  string timezone = 7;
+}

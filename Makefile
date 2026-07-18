@@ -1,11 +1,12 @@
 .DEFAULT_GOAL := help
-.PHONY: help get l10n format format-check analyze fix test check run-dev \
+.PHONY: help get l10n proto format format-check analyze fix test check run-dev \
 	run-prod apk-dev apk aab ipa icons splash clean upgrade outdated hooks
 
 help:
 	@echo "Available targets:"
 	@echo "  get          Fetch dependencies"
 	@echo "  l10n         Generate localizations"
+	@echo "  proto        Regenerate gRPC/protobuf Dart code (buf generate)"
 	@echo "  format       Format Dart code"
 	@echo "  analyze      Run static analysis"
 	@echo "  fix          Apply automated fixes"
@@ -27,6 +28,10 @@ get:
 
 l10n:
 	flutter gen-l10n
+
+proto:
+	buf generate
+	dart format lib/core/network/generated
 
 format:
 	dart format lib test

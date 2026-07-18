@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+package admin.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "common/v1/common.proto";
+
+// AdminService is guarded by the admin role. It manages users and
+// moderation.
+service AdminService {
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {get: "/v1/admin/users"};
+  }
+  rpc GetUser(AdminGetUserRequest) returns (common.v1.User) {
+    option (google.api.http) = {get: "/v1/admin/users/{id}"};
+  }
+  rpc SuspendUser(SuspendUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/v1/admin/users/{id}/suspend"
+      body: "*"
+    };
+  }
+  rpc UnsuspendUser(UnsuspendUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {post: "/v1/admin/users/{id}/unsuspend"};
+  }
+  rpc SetUserRole(SetUserRoleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put: "/v1/admin/users/{id}/role"
+      body: "*"
+    };
+  }
+}
+
+message ListUsersRequest {
+  common.v1.Page page = 1;
+}
+
+message ListUsersResponse {
+  repeated common.v1.User users = 1;
+  int64 total = 2;
+}
+
+message AdminGetUserRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 64];
+}
+
+message SuspendUserRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 64];
+  string reason = 2 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 200];
+  string details = 3 [(buf.validate.field).string.max_len = 2000];
+  bool permanent = 4;
+  // Days is the suspension length when not permanent.
+  int32 days = 5 [(buf.validate.field).int32.gte = 0, (buf.validate.field).int32.lte = 3650];
+}
+
+message UnsuspendUserRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 64];
+}
+
+message SetUserRoleRequest {
+  string id = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 64];
+  string role = 2 [(buf.validate.field).string.in = "user", (buf.validate.field).string.in = "admin"];
+}
