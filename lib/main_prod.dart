@@ -5,7 +5,7 @@ Future<void> main() => bootstrap(
   .new(
     flavor: .prod,
     appName: 'Flutter gRPC Starter',
-    apiBaseUrl: 'https://api.example.com',
+    grpc: const .new(host: 'api.example.com'),
     firebaseOptions: ProdFirebaseOptions.currentPlatformOrNull,
   ),
 );

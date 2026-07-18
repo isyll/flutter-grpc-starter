@@ -22,14 +22,4 @@ final class DeviceInfo {
   int get buildNumberValue => .tryParse(buildNumber) ?? 0;
 
   String get fullVersion => '$appVersion ($buildNumber)';
-
-  Map<String, Object> toSessionPayload() => {
-    'device_id': deviceId,
-    'platform': platform,
-    'os_version': osVersion,
-    'model': model,
-    'manufacturer': manufacturer,
-    'app_version': appVersion,
-    'build_number': buildNumber,
-  };
 }
